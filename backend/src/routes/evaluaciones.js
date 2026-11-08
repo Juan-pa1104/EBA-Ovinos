@@ -6,9 +6,11 @@ import {
   actualizarEvaluacion,
   actualizarItemEvaluacion,
   cerrarEvaluacion,
+  borrarEvaluacion,
   obtenerRecomendacionIA,
   regenerarRecomendacionIA,
   descargarReportePDF,
+  listarBorradas,
 } from '../controllers/evaluacionController.js';
 import { historialGlobal } from '../controllers/historialController.js';
 import { autenticar, autorizarRoles } from '../middleware/auth.js';
@@ -21,6 +23,7 @@ router.get('/', autenticar, listarEvaluaciones);
 router.get('/historial-global', autenticar, autorizarRoles('ADMIN'), historialGlobal);
 
 router.post('/', autenticar, autorizarRoles('ADMIN', 'EVALUADOR'), crearEvaluacion);
+router.get('/borradas', autenticar, autorizarRoles('ADMIN', 'EVALUADOR'), listarBorradas);
 router.get('/:id', autenticar, obtenerEvaluacion);
 
 router.patch(

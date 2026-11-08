@@ -1,23 +1,28 @@
-import { ClipboardCheck, Download, Eye } from 'lucide-react';
+import { ClipboardCheck, Download, Eye, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { descargarPdf, mensajeDeError } from '../api/client';
+import { api, descargarPdf, mensajeDeError } from '../api/client';
 import type { EvaluacionListado } from '../api/types';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { formatFecha } from '../lib/format';
-import { ClasificacionBadge, EstadoBadge, EmptyState, Button } from './ui';
+import { ClasificacionBadge, EstadoBadge, EmptyState, Button, ConfirmDialog } from './ui';
 
 export function EvaluacionTabla({
   evaluaciones,
   mostrarPredio = true,
+  onBorrada,
 }: {
   evaluaciones: EvaluacionListado[];
   mostrarPredio?: boolean;
+  onBorrada?: () => void;
 }) {
   const { usuario } = useAuth();
   const { toast } = useToast();
   const [descargando, setDescargando] = useState<number | null>(null);
+  const [abiertoBorrar, setAbiertoBorrar] = useState(false);
+  const [evaluacionBorrar, setEvaluacionBorrar] = useState<EvaluacionListado | null>(null);
+  const [borrando, setBorrando] = useState(false);
 
   const descargar = async (evaluacion: EvaluacionListado) => {
     setDescargando(evaluacion.id);
@@ -31,6 +36,33 @@ export function EvaluacionTabla({
       toast(mensajeDeError(error), 'error');
     } finally {
       setDescargando(null);
+    }
+  };
+
+  const pedirBorrar = (evaluacion: EvaluacionListado) => {
+    setEvaluacionBorrar(evaluacion);
+    setAbiertoBorrar(true);
+  };
+
+  const borrarEvaluacion = async () => {
+    if (!evaluacionBorrar) return;
+    const raw = window.prompt('¿Por qué se está borrando esta evaluación?\n\nOpciones sugeridas:\n- Error de prueba\n- Prueba equivocación\n- Otro (escribir razón)');
+    const motivo = (raw && raw.trim()) || 'Sin especificar';
+    if (!motivo) {
+      setAbiertoBorrar(false);
+      return;
+    }
+    setAbiertoBorrar(false);
+    setBorrando(true);
+    try {
+      await api.post(`/evaluaciones/${evaluacionBorrar.id}/borrar`, { motivo });
+      toast(`Evaluación borrada. Motivo: ${motivo}`);
+      if (onBorrada) onBorrada();
+      else window.location.reload();
+    } catch (error) {
+      toast(mensajeDeError(error), 'error');
+    } finally {
+      setBorrando(false);
     }
   };
 
@@ -112,6 +144,17 @@ export function EvaluacionTabla({
                         Resultados
                       </Link>
                     )}
+                    {usuario?.rol !== 'RESPONSABLE' && (
+                      <button
+                        type="button"
+                        onClick={() => pedirBorrar(evaluacion)}
+                        className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-red-50 px-2.5 text-[11px] font-bold text-red-700 transition hover:bg-red-100"
+                        aria-label="Borrar evaluación"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        Borrar
+                      </button>
+                    )}
                     {evaluacion.estado === 'CERRADA' && (
                       <Button
                         variant="ghost"
@@ -177,6 +220,16 @@ export function EvaluacionTabla({
                   Resultados
                 </Link>
               )}
+              {usuario?.rol !== 'RESPONSABLE' && (
+                <button
+                  type="button"
+                  onClick={() => pedirBorrar(evaluacion)}
+                  className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-xl bg-red-50 text-xs font-bold text-red-700"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Borrar
+                </button>
+              )}
               {evaluacion.estado === 'CERRADA' && (
                 <Button
                   variant="outline"
@@ -193,6 +246,15 @@ export function EvaluacionTabla({
           </div>
         ))}
       </div>
+
+      <ConfirmDialog
+        open={abiertoBorrar}
+        title="Borrar evaluación"
+        description={`Se pedirá el motivo del borrado y quedará guardado en el registro de evaluaciones borradas.${evaluacionBorrar ? ` La evaluación del predio ${evaluacionBorrar.predio_nombre} (${evaluacionBorrar.estado}) se eliminará permanentemente.` : ''}`}
+        confirmLabel="Continuar con borrado"
+        onCancel={() => setAbiertoBorrar(false)}
+        onConfirm={() => void borrarEvaluacion()}
+      />
     </>
   );
 }

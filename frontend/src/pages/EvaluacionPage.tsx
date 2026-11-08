@@ -313,10 +313,17 @@ export function EvaluacionPage() {
   };
 
   const borrarEvaluacion = async () => {
+    // Pedir motivo al usuario antes de borrar
+    const raw = prompt('¿Por qué se está borrando esta evaluación?\n\nOpciones sugeridas:\n- Error de prueba\n- Prueba equivocación\n- Otro (escribir razón)');
+    const motivo = (raw && raw.trim()) || 'Sin especificar';
+    if (!motivo) {
+      setConfirmarBorrar(false);
+      return;
+    }
     setConfirmarBorrar(false);
     try {
-      await api.post<EvaluacionDetalle>(`/evaluaciones/${id}/borrar`);
-      toast('Evaluación borrada permanentemente.');
+      await api.post<EvaluacionDetalle>(`/evaluaciones/${id}/borrar`, { motivo });
+      toast(`Evaluación borrada. Motivo: ${motivo}`);
       navigate('/evaluaciones');
     } catch (err) {
       toast(mensajeDeError(err), 'error');
@@ -679,13 +686,12 @@ export function EvaluacionPage() {
                     </Button>
                   )}
                   {!completada && (
-                    <Button
-                      variant="danger"
-                      className="w-full mb-2"
+                    <button
+                      className="w-full mb-2 bg-red-600 text-white px-4 py-2 rounded"
                       onClick={() => setConfirmarBorrar(true)}
                     >
                       Borrar evaluación
-                    </Button>
+                    </button>
                   )}
                   {completada && (
                     <Button
@@ -707,15 +713,25 @@ export function EvaluacionPage() {
                       indicadores aplicables para cerrar.
                     </p>
                   )}
-                  {completada || !tienePendientes && (
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      onClick={() => setConfirmarCierre(true)}
-                    >
-                      Cerrar evaluación
-                    </Button>
-                  )}
+                  {completada || !tienePendientes ? (
+                    <>
+                      {!cerrada && (
+                        <Button
+                          variant="outline"
+                          className="w-full mb-2"
+                          onClick={() => setConfirmarCierre(true)}
+                        >
+                          Cerrar evaluación
+                        </Button>
+                      )}
+                      <button
+                        className="w-full bg-red-600 text-white px-4 py-2 rounded"
+                        onClick={() => setConfirmarBorrar(true)}
+                      >
+                        Borrar evaluación
+                      </button>
+                    </>
+                  ) : null}
                 </>
               )}
             </div>
@@ -770,6 +786,14 @@ export function EvaluacionPage() {
         loading={cerrando}
         onCancel={() => setConfirmarCierre(false)}
         onConfirm={() => void cerrarEvaluacion()}
+      />
+      <ConfirmDialog
+        open={confirmarBorrar}
+        title="Borrar evaluación"
+        description="Se pedirá el motivo del borrado y quedará guardado en el registro de evaluaciones borradas. La evaluación y sus calificaciones se eliminarán permanentemente."
+        confirmLabel="Continuar con borrado"
+        onCancel={() => setConfirmarBorrar(false)}
+        onConfirm={() => void borrarEvaluacion()}
       />
     </div>
   );

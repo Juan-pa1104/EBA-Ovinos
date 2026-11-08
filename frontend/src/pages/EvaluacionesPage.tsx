@@ -215,7 +215,7 @@ export function EvaluacionesPage() {
         />
       ) : (
         <Card className="p-5">
-          <EvaluacionTabla evaluaciones={evaluaciones} />
+          <EvaluacionTabla evaluaciones={evaluaciones} onBorrada={cargar} />
         </Card>
       )}
     </div>
