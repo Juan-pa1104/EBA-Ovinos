@@ -7,6 +7,7 @@ import {
   Info,
   Lock,
   MapPin,
+  Loader2,
   Save,
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -104,6 +105,7 @@ export function EvaluacionPage() {
   const [guardandoCabecera, setGuardandoCabecera] = useState(false);
   const [cerrando, setCerrando] = useState(false);
   const [confirmarCierre, setConfirmarCierre] = useState(false);
+  const [confirmarBorrar, setConfirmarBorrar] = useState(false);
 
   const itemsRef = useRef<ItemEvaluacion[]>([]);
   const observacionesRef = useRef<Record<number, string>>({});
@@ -310,10 +312,26 @@ export function EvaluacionPage() {
     }
   };
 
+  const borrarEvaluacion = async () => {
+    setConfirmarBorrar(false);
+    try {
+      await api.post<EvaluacionDetalle>(`/evaluaciones/${id}/borrar`);
+      toast('Evaluación borrada permanentemente.');
+      navigate('/evaluaciones');
+    } catch (err) {
+      toast(mensajeDeError(err), 'error');
+    }
+  };
+
   if (cargando) return <LoadingBlock label="Cargando evaluación..." />;
   if (errorCarga || !data || !resumen) {
     return <ErrorState message={errorCarga ?? 'Evaluación no encontrada.'} onRetry={cargar} />;
   }
+
+  // Determinar si la evaluación está en borrador (no cerrada y sin completar obligatoria)
+  const enBorrador = data.estado === 'BORRADOR';
+  const completada = resumen.completo; // todos los indicadores aplicables tienen puntaje
+  const tienePendientes = data.estado === 'BORRADOR' && !completada;
 
   const estilo = estiloClasificacion(resumen.clasificacion);
   const progreso = resumen.total > 0 ? (resumen.calificados / resumen.total) * 100 : 0;
@@ -647,28 +665,56 @@ export function EvaluacionPage() {
             </div>
 
             <div className="mt-5 border-t border-brand-900/[0.07] pt-4">
-              {cerrada ? (
-                <Link to={`/evaluaciones/${data.id}/resultados`}>
-                  <Button className="w-full" icon={FileText}>
-                    Ver resultados
-                  </Button>
-                </Link>
-              ) : (
+              {enBorrador ? (
+                // Estado de borrador: mostrar botones de "Continuar" y "Borrar"
                 <>
-                  <Button
-                    className="w-full"
-                    icon={CheckCircle2}
-                    disabled={!resumen.completo}
-                    onClick={() => setConfirmarCierre(true)}
-                  >
-                    Cerrar evaluación
-                  </Button>
-                  {!resumen.completo && (
+                  {tienePendientes && (
+                    <Button
+                      variant="outline"
+                      className="w-full mb-2"
+                      icon={Loader2}
+                      loading={false}
+                    >
+                      Continuar evaluación
+                    </Button>
+                  )}
+                  {!completada && (
+                    <Button
+                      variant="danger"
+                      className="w-full mb-2"
+                      onClick={() => setConfirmarBorrar(true)}
+                    >
+                      Borrar evaluación
+                    </Button>
+                  )}
+                  {completada && (
+                    <Button
+                      variant="outline"
+                      className="w-full mb-2"
+                      onClick={() => setConfirmarCierre(true)}
+                    >
+                      Cerrar evaluación
+                    </Button>
+                  )}
+                </>
+              ) : (
+                // Estado cerrado o en progreso normal
+                <>
+                  {tienePendientes && (
                     <p className="mt-2 flex items-start gap-1.5 text-[11px] leading-relaxed text-amber-700">
                       <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                       Faltan {faltantes} indicador(es) por calificar. Debe completar todos los
                       indicadores aplicables para cerrar.
                     </p>
+                  )}
+                  {completada || !tienePendientes && (
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => setConfirmarCierre(true)}
+                    >
+                      Cerrar evaluación
+                    </Button>
                   )}
                 </>
               )}

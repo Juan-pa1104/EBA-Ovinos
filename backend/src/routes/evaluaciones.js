@@ -33,6 +33,8 @@ router.patch('/:id', autenticar, autorizarRoles('ADMIN', 'EVALUADOR'), actualiza
 router.put('/:id', autenticar, autorizarRoles('ADMIN', 'EVALUADOR'), actualizarEvaluacion);
 router.post('/:id/cerrar', autenticar, autorizarRoles('ADMIN', 'EVALUADOR'), cerrarEvaluacion);
 
+router.post('/:id/borrar', autenticar, autorizarRoles('ADMIN', 'EVALUADOR'), borrarEvaluacion);
+
 router.get('/:id/recomendaciones-ia', autenticar, obtenerRecomendacionIA);
 router.post('/:id/recomendaciones-ia', autenticar, regenerarRecomendacionIA);
 

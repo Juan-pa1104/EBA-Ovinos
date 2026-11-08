@@ -406,6 +406,34 @@ export const cerrarEvaluacion = ah(async (req, res) => {
   return res.json(actualizado);
 });
 
+export const borrarEvaluacion = ah(async (req, res) => {
+  const evaluacionId = Number(req.params.id);
+  const detalle = await construirDetalle(evaluacionId);
+
+  if (!detalle) {
+    return res.status(404).json({ error: 'Evaluación no encontrada' });
+  }
+  if (!puedeVerEvaluacion(req.usuario, detalle)) {
+    return res.status(403).json({ error: 'No tienes acceso a esta evaluación' });
+  }
+
+  await pool.query(
+    `DELETE FROM item_evaluacion WHERE evaluacion_id = ?`,
+    [evaluacionId],
+  );
+  await pool.query(
+    `DELETE FROM evaluaciones WHERE id = ?`,
+    [evaluacionId],
+  );
+  // También borramos la recomendación IA si existe
+  await pool.query(
+    `DELETE FROM recomendaciones_ia WHERE evaluacion_id = ?`,
+    [evaluacionId],
+  );
+
+  return res.json({ mensaje: 'Evaluación borrada permanentemente.' });
+});
+
 export const obtenerRecomendacionIA = ah(async (req, res) => {
   const evaluacionId = Number(req.params.id);
   const detalle = await construirDetalle(evaluacionId);
