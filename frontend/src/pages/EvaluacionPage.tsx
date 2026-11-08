@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { api, mensajeDeError } from '../api/client';
+import { api, ApiError, mensajeDeError } from '../api/client';
 import type {
   EvaluacionDetalle,
   ItemEvaluacion,
@@ -221,6 +221,11 @@ export function EvaluacionPage() {
     } catch (err) {
       actualizarItem(item.indicador_id, { puntaje: anterior });
       toast(mensajeDeError(err), 'error');
+      if (err instanceof ApiError && (err.status === 0 || err.status >= 500)) {
+        // Si la petición falló después de guardarse en el servidor, recargamos
+        // para que el progreso y el botón de cierre reflejen el estado real.
+        void cargar();
+      }
     } finally {
       setGuardando((actuales) => {
         const copia = { ...actuales };

@@ -1,5 +1,8 @@
 const API_BASE = (import.meta.env.VITE_API_URL ?? '/api').replace(/\/$/, '');
 
+const TIEMPO_LIMITE_MS = 20_000;
+const TIEMPO_LIMITE_DESCARGA_MS = 60_000;
+
 export const TOKEN_KEY = 'eba_token';
 
 export class ApiError extends Error {
@@ -43,17 +46,28 @@ async function request<T>(path: string, options: RequestOptions = {}): Promise<T
   }
 
   let response: Response;
+  const controller = new AbortController();
+  const temporizador = window.setTimeout(() => controller.abort(), TIEMPO_LIMITE_MS);
   try {
     response = await fetch(`${API_BASE}${path}`, {
       method: options.method ?? 'GET',
       headers,
       body: options.body !== undefined ? JSON.stringify(options.body) : undefined,
+      signal: controller.signal,
     });
-  } catch {
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new ApiError(
+        'El servidor tardó demasiado en responder. Verifique su conexión e intente nuevamente.',
+        0,
+      );
+    }
     throw new ApiError(
       'No fue posible conectar con el servidor. Verifique su conexión e intente nuevamente.',
       0,
     );
+  } finally {
+    window.clearTimeout(temporizador);
   }
 
   if (response.status === 401 && path !== '/auth/login') {
@@ -92,12 +106,20 @@ export const api = {
 export async function descargarPdf(path: string, nombreArchivo: string): Promise<void> {
   const token = getToken();
   let response: Response;
+  const controller = new AbortController();
+  const temporizador = window.setTimeout(() => controller.abort(), TIEMPO_LIMITE_DESCARGA_MS);
   try {
     response = await fetch(`${API_BASE}${path}`, {
       headers: token ? { Authorization: `Bearer ${token}` } : {},
+      signal: controller.signal,
     });
-  } catch {
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new ApiError('La descarga tardó demasiado. Intente nuevamente.', 0);
+    }
     throw new ApiError('No fue posible conectar con el servidor.', 0);
+  } finally {
+    window.clearTimeout(temporizador);
   }
 
   if (!response.ok) {
