@@ -1,4 +1,4 @@
-import { ClipboardCheck, Download, Eye, Trash2 } from 'lucide-react';
+import { ClipboardCheck, Download, Eye, Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api, descargarPdf, mensajeDeError } from '../api/client';
@@ -139,6 +139,16 @@ export function EvaluacionTabla({
                         Resultados
                       </Link>
                     )}
+                    {evaluacion.estado === 'CERRADA' && usuario?.rol !== 'RESPONSABLE' && (
+                      <Link
+                        to={`/evaluaciones/${evaluacion.id}`}
+                        className="inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-[11px] font-bold text-brand-700 transition hover:bg-brand-50"
+                        aria-label="Editar evaluación cerrada"
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                        Editar
+                      </Link>
+                    )}
                     {usuario?.rol !== 'RESPONSABLE' && (
                       <button
                         type="button"
@@ -213,6 +223,15 @@ export function EvaluacionTabla({
                 >
                   <Eye className="h-4 w-4" />
                   Resultados
+                </Link>
+              )}
+              {evaluacion.estado === 'CERRADA' && usuario?.rol !== 'RESPONSABLE' && (
+                <Link
+                  to={`/evaluaciones/${evaluacion.id}`}
+                  className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-xl px-2 text-xs font-bold text-brand-700 hover:bg-brand-50"
+                >
+                  <Pencil className="h-4 w-4" />
+                  Editar
                 </Link>
               )}
               {usuario?.rol !== 'RESPONSABLE' && (

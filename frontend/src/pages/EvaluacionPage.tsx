@@ -201,7 +201,7 @@ export function EvaluacionPage() {
   };
 
   const calificar = async (item: ItemEvaluacion, puntaje: Puntaje) => {
-    if (!data || cerrada) return;
+    if (!data) return;
     const anterior = item.puntaje;
 
     actualizarItem(item.indicador_id, { puntaje });
@@ -217,6 +217,10 @@ export function EvaluacionPage() {
       );
       actualizarItem(item.indicador_id, respuesta.item);
       setResumen(respuesta.resumen);
+      if (cerrada) {
+        setData((actual) => (actual ? { ...actual, estado: 'BORRADOR' } : actual));
+        toast('La evaluación se reabrió a borrador al modificar un puntaje.');
+      }
       setObservaciones((actuales) => ({
         ...actuales,
         [item.indicador_id]: respuesta.item.observacion ?? '',
@@ -240,7 +244,7 @@ export function EvaluacionPage() {
 
   const guardarObservacion = async (indicadorId: number) => {
     const item = itemsRef.current.find((actual) => actual.indicador_id === indicadorId);
-    if (!item || item.puntaje === null || cerrada) return;
+    if (!item || item.puntaje === null) return;
 
     const texto = (observacionesRef.current[indicadorId] ?? '').trim();
     if ((item.observacion ?? '').trim() === texto) return;
@@ -253,6 +257,10 @@ export function EvaluacionPage() {
       );
       actualizarItem(indicadorId, respuesta.item);
       setResumen(respuesta.resumen);
+      if (cerrada) {
+        setData((actual) => (actual ? { ...actual, estado: 'BORRADOR' } : actual));
+        toast('La evaluación se reabrió a borrador al modificar una observación.');
+      }
     } catch (err) {
       toast(mensajeDeError(err), 'error');
     } finally {
@@ -275,11 +283,11 @@ export function EvaluacionPage() {
   };
 
   const guardarCabecera = async (valor: string) => {
-    if (!data || cerrada) return;
+    if (!data) return;
     setGuardandoCabecera(true);
     try {
       await api.patch(`/evaluaciones/${id}`, { observaciones: valor.trim() || null });
-      setData((actual) => (actual ? { ...actual, observaciones: valor.trim() || null } : actual));
+      setData((actual) => (actual ? { ...actual, observaciones: valor.trim() || null, estado: cerrada ? 'BORRADOR' : actual.estado } : actual));
     } catch (err) {
       toast(mensajeDeError(err), 'error');
     } finally {
@@ -369,13 +377,12 @@ export function EvaluacionPage() {
       />
 
       {cerrada && (
-        <div className="mb-5 flex items-start gap-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+        <div className="mb-5 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
           <Lock className="mt-0.5 h-4 w-4 shrink-0" />
           <div>
-            <p className="font-bold">Esta evaluación está cerrada.</p>
-            <p className="mt-0.5 text-xs leading-relaxed text-emerald-800/80">
-              Los puntajes y la clasificación quedaron congelados y no pueden modificarse. Puede
-              consultar los resultados o descargar el reporte.
+            <p className="font-bold">Esta evaluación está cerrada — puedes editarla.</p>
+            <p className="mt-0.5 text-xs leading-relaxed text-amber-800/80">
+              Si modificas cualquier puntaje u observación, la evaluación se reabrirá automáticamente a borrador y podrás volver a cerrarla con el nuevo resultado.
             </p>
           </div>
         </div>
@@ -540,7 +547,7 @@ export function EvaluacionPage() {
                       <ScoreSelector
                         value={item.puntaje}
                         onChange={(puntaje) => void calificar(item, puntaje)}
-                        disabled={cerrada || Boolean(guardando[item.indicador_id])}
+                        disabled={Boolean(guardando[item.indicador_id])}
                       />
                     </div>
 
@@ -557,7 +564,7 @@ export function EvaluacionPage() {
                           }
                           void guardarObservacion(item.indicador_id);
                         }}
-                        disabled={cerrada || item.puntaje === null}
+                        disabled={item.puntaje === null}
                         rows={2}
                         maxLength={1000}
                         placeholder={
@@ -763,11 +770,10 @@ export function EvaluacionPage() {
                 if (timerCabecera.current) window.clearTimeout(timerCabecera.current);
                 void guardarCabecera(obsGenerales);
               }}
-              disabled={cerrada}
               rows={5}
               maxLength={2000}
               placeholder="Contexto de la visita, manejo general, condiciones climáticas..."
-              hint={cerrada ? undefined : 'Se guarda automáticamente al escribir.'}
+              hint="Se guarda automáticamente al escribir."
             />
           </Card>
         </div>

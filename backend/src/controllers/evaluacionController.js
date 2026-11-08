@@ -284,9 +284,15 @@ export const actualizarEvaluacion = ah(async (req, res) => {
   if (!evaluaciones[0]) {
     return res.status(404).json({ error: 'Evaluación no encontrada' });
   }
-  if (evaluaciones[0].estado === 'CERRADA') {
-    return res.status(400).json({ error: 'No se puede modificar una evaluación cerrada' });
-  }
+  const estabaCerrada = evaluaciones[0].estado === 'CERRADA';
+  const reabrir = async () => {
+    if (estabaCerrada) {
+      await pool.query(
+        "UPDATE evaluaciones SET estado = 'BORRADOR', puntaje_total = NULL, clasificacion = NULL, cerrada_en = NULL WHERE id = ?",
+        [evaluacionId],
+      );
+    }
+  };
 
   // Actualización de la cabecera (observaciones generales).
   if (req.body && Object.prototype.hasOwnProperty.call(req.body, 'observaciones')) {
@@ -296,6 +302,7 @@ export const actualizarEvaluacion = ah(async (req, res) => {
       observaciones,
       evaluacionId,
     ]);
+    await reabrir();
     return res.json({ ok: true, observaciones });
   }
 
@@ -314,6 +321,7 @@ export const actualizarEvaluacion = ah(async (req, res) => {
       [puntaje, item.observacion ?? null, evaluacionId, item.indicador_id],
     );
   }
+  await reabrir();
 
   return res.json({ ok: true, mensaje: 'Evaluación actualizada' });
 });
@@ -328,9 +336,7 @@ export const actualizarItemEvaluacion = ah(async (req, res) => {
   if (!evaluaciones[0]) {
     return res.status(404).json({ error: 'Evaluación no encontrada' });
   }
-  if (evaluaciones[0].estado === 'CERRADA') {
-    return res.status(400).json({ error: 'No se puede modificar una evaluación cerrada' });
-  }
+  const estabaCerrada = evaluaciones[0].estado === 'CERRADA';
 
   const [items] = await pool.query(
     'SELECT * FROM item_evaluacion WHERE evaluacion_id = ? AND indicador_id = ? LIMIT 1',
@@ -361,6 +367,13 @@ export const actualizarItemEvaluacion = ah(async (req, res) => {
     observacion,
     item.id,
   ]);
+
+  if (estabaCerrada) {
+    await pool.query(
+      "UPDATE evaluaciones SET estado = 'BORRADOR', puntaje_total = NULL, clasificacion = NULL, cerrada_en = NULL WHERE id = ?",
+      [evaluacionId],
+    );
+  }
 
   const detalle = await construirDetalle(evaluacionId);
   const actualizado = detalle.items.find((i) => i.indicador_id === indicadorId);
@@ -417,6 +430,14 @@ export const borrarEvaluacion = ah(async (req, res) => {
     return res.status(403).json({ error: 'No tienes acceso a esta evaluación' });
   }
 
+  const motivo = (req.body?.motivo || '').trim() || 'Sin especificar';
+
+  // Guardar el motivo en la tabla de auditoría antes de borrar
+  await pool.query(
+    `INSERT INTO evaluaciones_borradas (evaluacion_id, motivo) VALUES (?, ?)`,
+    [evaluacionId, motivo],
+  );
+
   await pool.query(
     `DELETE FROM item_evaluacion WHERE evaluacion_id = ?`,
     [evaluacionId],
@@ -431,7 +452,14 @@ export const borrarEvaluacion = ah(async (req, res) => {
     [evaluacionId],
   );
 
-  return res.json({ mensaje: 'Evaluación borrada permanentemente.' });
+  return res.json({ mensaje: 'Evaluación borrada permanentemente.', motivo });
+});
+
+export const listarBorradas = ah(async (req, res) => {
+  const [filas] = await pool.query(
+    'SELECT id, evaluacion_id, motivo, fecha_borrado FROM evaluaciones_borradas ORDER BY fecha_borrado DESC'
+  );
+  res.json(filas);
 });
 
 export const obtenerRecomendacionIA = ah(async (req, res) => {
