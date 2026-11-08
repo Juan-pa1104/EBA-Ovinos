@@ -190,8 +190,16 @@ export const eliminarPredio = ah(async (req, res) => {
     return res.status(403).json({ error: 'No tienes acceso a este predio' });
   }
 
+  const motivo = ((req.body && req.body.motivo) || req.query.motivo || 'Sin especificar').toString().trim() || 'Sin especificar';
+
   try {
     await pool.query('DELETE FROM predios WHERE id = ?', [predioId]);
+    await pool.query('INSERT INTO predios_borrados (predio_id, nombre, municipio, motivo) VALUES (?, ?, ?, ?)', [
+      predioId,
+      predio.nombre,
+      predio.municipio,
+      motivo,
+    ]);
     return res.status(204).end();
   } catch (error) {
     if (error.code === 'ER_ROW_IS_REFERENCED_2') {
@@ -201,4 +209,41 @@ export const eliminarPredio = ah(async (req, res) => {
     }
     throw error;
   }
+});
+
+export const borrarPredio = ah(async (req, res) => {
+  const predioId = Number(req.params.id);
+  const predio = await obtenerPredioCompleto(predioId);
+
+  if (!predio) {
+    return res.status(404).json({ error: 'Predio no encontrado' });
+  }
+  if (!puedeVerPredio(req.usuario, predio)) {
+    return res.status(403).json({ error: 'No tienes acceso a este predio' });
+  }
+
+  const motivo = String(req.body?.motivo ?? '').trim() || 'Sin especificar';
+
+  try {
+    await pool.query('DELETE FROM predios WHERE id = ?', [predioId]);
+    await pool.query(
+      'INSERT INTO predios_borrados (predio_id, nombre, municipio, motivo) VALUES (?, ?, ?, ?)',
+      [predioId, predio.nombre, predio.municipio, motivo],
+    );
+    return res.json({ mensaje: 'Predio borrado permanentemente.', motivo });
+  } catch (error) {
+    if (error.code === 'ER_ROW_IS_REFERENCED_2') {
+      return res.status(409).json({
+        error: 'No se puede eliminar el predio porque tiene evaluaciones asociadas.',
+      });
+    }
+    throw error;
+  }
+});
+
+export const listarBorradas = ah(async (req, res) => {
+  const [filas] = await pool.query(
+    'SELECT id, predio_id, nombre, municipio, motivo, fecha_borrado FROM predios_borrados ORDER BY fecha_borrado DESC',
+  );
+  return res.json(filas);
 });

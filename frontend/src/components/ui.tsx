@@ -726,12 +726,18 @@ export function BorrarEvaluacionModal({
   onConfirm,
   loading = false,
   extraInfo,
+  title = 'Borrar evaluación',
+  description = 'El motivo es obligatorio y quedará guardado en el registro de evaluaciones borradas. La evaluación y sus calificaciones se eliminarán permanentemente.',
+  confirmLabel = 'Borrar evaluación',
 }: {
   open: boolean;
   onClose: () => void;
   onConfirm: (motivo: string) => void | Promise<void>;
   loading?: boolean;
   extraInfo?: string;
+  title?: string;
+  description?: string;
+  confirmLabel?: string;
 }) {
   const [motivo, setMotivo] = useState('');
   const [seleccionado, setSeleccionado] = useState<string | null>(null);
@@ -758,8 +764,8 @@ export function BorrarEvaluacionModal({
     <Modal
       open={open}
       onClose={onClose}
-      title="Borrar evaluación"
-      description="El motivo es obligatorio y quedará guardado en el registro de evaluaciones borradas. La evaluación y sus calificaciones se eliminarán permanentemente."
+      title={title}
+      description={description}
       size="sm"
       footer={
         <>
@@ -773,7 +779,7 @@ export function BorrarEvaluacionModal({
             disabled={!valido || loading}
             icon={TrashIcon}
           >
-            Borrar evaluación
+            {confirmLabel}
           </Button>
         </>
       }
@@ -818,13 +824,15 @@ export function BorrarEvaluacionModal({
           placeholder="Ej: Error de prueba, equivocación de predio, revisión técnica, otro..."
           rows={4}
           maxLength={255}
-          hint="Mínimo 3 caracteres. Quedará en el registro de evaluaciones borradas."
+          hint="Mínimo 3 caracteres. Quedará en el registro de borrados."
           error={!valido && motivo.length > 0 ? 'El motivo debe tener al menos 3 caracteres.' : undefined}
         />
       </div>
     </Modal>
   );
 }
+
+export const BorrarPredioModal = BorrarEvaluacionModal;
 
 /* ------------------------------------------------------------------ */
 /* Selector de puntaje                                                 */

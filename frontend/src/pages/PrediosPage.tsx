@@ -1,10 +1,12 @@
 import {
   ClipboardCheck,
   Eye,
+  History,
   MapPin,
   Pencil,
   Plus,
   SlidersHorizontal,
+  Trash2,
   Users,
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
@@ -16,6 +18,7 @@ import {
   Button,
   Card,
   ClasificacionBadge,
+  BorrarPredioModal,
   EmptyState,
   ErrorState,
   LoadingBlock,
@@ -35,6 +38,9 @@ export function PrediosPage() {
   const [search, setSearch] = useState('');
   const [especie, setEspecie] = useState('');
   const [sistema, setSistema] = useState('');
+  const [abiertoBorrar, setAbiertoBorrar] = useState(false);
+  const [predioBorrar, setPredioBorrar] = useState<PredioConResumen | null>(null);
+  const [borrando, setBorrando] = useState(false);
 
   const puedeGestionar = usuario?.rol === 'ADMIN' || usuario?.rol === 'EVALUADOR';
 
@@ -69,6 +75,28 @@ export function PrediosPage() {
     setSistema('');
   };
 
+  const pedirBorrar = (predio: PredioConResumen) => {
+    setPredioBorrar(predio);
+    setAbiertoBorrar(true);
+  };
+
+  const borrarPredio = async (motivo: string) => {
+    if (!predioBorrar) return;
+    const motivoLimpio = (motivo ?? '').trim() || 'Sin especificar';
+    setAbiertoBorrar(false);
+    setBorrando(true);
+    try {
+      await api.post(`/predios/${predioBorrar.id}/borrar`, { motivo: motivoLimpio });
+      // Toast simple (sin ToastContext aquí)
+      window.alert(`Predio borrado. Motivo: ${motivoLimpio}`);
+      void cargar();
+    } catch (err) {
+      window.alert(`Error al borrar: ${mensajeDeError(err)}`);
+    } finally {
+      setBorrando(false);
+    }
+  };
+
   return (
     <div className="animate-fade-in">
       <PageHeader
@@ -81,9 +109,16 @@ export function PrediosPage() {
         }
         actions={
           puedeGestionar ? (
-            <Link to="/predios/nuevo">
-              <Button icon={Plus}>Nuevo predio</Button>
-            </Link>
+            <div className="flex gap-2">
+              <Link to="/predios/borrados">
+                <Button variant="outline" icon={History}>
+                  Historial de borrados
+                </Button>
+              </Link>
+              <Link to="/predios/nuevo">
+                <Button icon={Plus}>Nuevo predio</Button>
+              </Link>
+            </div>
           ) : undefined
         }
       />
@@ -212,6 +247,15 @@ export function PrediosPage() {
                               <Pencil className="h-3.5 w-3.5" />
                               Editar
                             </Link>
+                            <button
+                              type="button"
+                              onClick={() => pedirBorrar(predio)}
+                              className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-red-50 px-2.5 text-[11px] font-bold text-red-700 transition hover:bg-red-100"
+                              aria-label="Borrar predio"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                              Borrar
+                            </button>
                           </>
                         )}
                       </div>
@@ -257,13 +301,23 @@ export function PrediosPage() {
                     Ver predio
                   </Link>
                   {puedeGestionar && (
-                    <Link
-                      to={`/evaluaciones/nueva?predio=${predio.id}`}
-                      className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-xl bg-brand-100 text-xs font-bold text-brand-800"
-                    >
-                      <ClipboardCheck className="h-4 w-4" />
-                      Evaluar
-                    </Link>
+                    <>
+                      <Link
+                        to={`/evaluaciones/nueva?predio=${predio.id}`}
+                        className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-xl bg-brand-100 text-xs font-bold text-brand-800"
+                      >
+                        <ClipboardCheck className="h-4 w-4" />
+                        Evaluar
+                      </Link>
+                      <button
+                        type="button"
+                        onClick={() => pedirBorrar(predio)}
+                        className="inline-flex h-9 flex-1 items-center justify-center gap-1.5 rounded-xl bg-red-50 text-xs font-bold text-red-700"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        Borrar
+                      </button>
+                    </>
                   )}
                 </div>
               </Card>
@@ -271,6 +325,21 @@ export function PrediosPage() {
           </div>
         </>
       )}
+
+      <BorrarPredioModal
+        open={abiertoBorrar}
+        onClose={() => setAbiertoBorrar(false)}
+        loading={borrando}
+        title="Borrar predio"
+        description="El motivo es obligatorio y quedará guardado en el registro de predios borrados. El predio se eliminará permanentemente."
+        confirmLabel="Borrar predio"
+        extraInfo={
+          predioBorrar
+            ? `El predio ${predioBorrar.nombre} (${predioBorrar.municipio}) se eliminará de la lista. ${predioBorrar.total_evaluaciones > 0 ? 'Si tiene evaluaciones asociadas, el sistema bloqueará el borrado.' : ''}`
+            : undefined
+        }
+        onConfirm={(motivo) => void borrarPredio(motivo)}
+      />
     </div>
   );
 }
