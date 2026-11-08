@@ -6,7 +6,7 @@ import type { EvaluacionListado } from '../api/types';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import { formatFecha } from '../lib/format';
-import { ClasificacionBadge, EstadoBadge, EmptyState, Button, ConfirmDialog } from './ui';
+import { ClasificacionBadge, EstadoBadge, EmptyState, Button, BorrarEvaluacionModal } from './ui';
 
 export function EvaluacionTabla({
   evaluaciones,
@@ -44,19 +44,14 @@ export function EvaluacionTabla({
     setAbiertoBorrar(true);
   };
 
-  const borrarEvaluacion = async () => {
+  const borrarEvaluacion = async (motivo: string) => {
     if (!evaluacionBorrar) return;
-    const raw = window.prompt('¿Por qué se está borrando esta evaluación?\n\nOpciones sugeridas:\n- Error de prueba\n- Prueba equivocación\n- Otro (escribir razón)');
-    const motivo = (raw && raw.trim()) || 'Sin especificar';
-    if (!motivo) {
-      setAbiertoBorrar(false);
-      return;
-    }
+    const motivoLimpio = (motivo ?? '').trim() || 'Sin especificar';
     setAbiertoBorrar(false);
     setBorrando(true);
     try {
-      await api.post(`/evaluaciones/${evaluacionBorrar.id}/borrar`, { motivo });
-      toast(`Evaluación borrada. Motivo: ${motivo}`);
+      await api.post(`/evaluaciones/${evaluacionBorrar.id}/borrar`, { motivo: motivoLimpio });
+      toast(`Evaluación borrada. Motivo: ${motivoLimpio}`);
       if (onBorrada) onBorrada();
       else window.location.reload();
     } catch (error) {
@@ -247,13 +242,16 @@ export function EvaluacionTabla({
         ))}
       </div>
 
-      <ConfirmDialog
+      <BorrarEvaluacionModal
         open={abiertoBorrar}
-        title="Borrar evaluación"
-        description={`Se pedirá el motivo del borrado y quedará guardado en el registro de evaluaciones borradas.${evaluacionBorrar ? ` La evaluación del predio ${evaluacionBorrar.predio_nombre} (${evaluacionBorrar.estado}) se eliminará permanentemente.` : ''}`}
-        confirmLabel="Continuar con borrado"
-        onCancel={() => setAbiertoBorrar(false)}
-        onConfirm={() => void borrarEvaluacion()}
+        onClose={() => setAbiertoBorrar(false)}
+        loading={borrando}
+        extraInfo={
+          evaluacionBorrar
+            ? `La evaluación del predio ${evaluacionBorrar.predio_nombre} (${evaluacionBorrar.estado}) se eliminará permanentemente.`
+            : undefined
+        }
+        onConfirm={(motivo) => void borrarEvaluacion(motivo)}
       />
     </>
   );

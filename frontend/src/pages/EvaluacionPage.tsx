@@ -25,6 +25,7 @@ import {
   Card,
   ClasificacionBadge,
   ConfirmDialog,
+  BorrarEvaluacionModal,
   ErrorState,
   LoadingBlock,
   MetodoBadge,
@@ -312,18 +313,12 @@ export function EvaluacionPage() {
     }
   };
 
-  const borrarEvaluacion = async () => {
-    // Pedir motivo al usuario antes de borrar
-    const raw = prompt('¿Por qué se está borrando esta evaluación?\n\nOpciones sugeridas:\n- Error de prueba\n- Prueba equivocación\n- Otro (escribir razón)');
-    const motivo = (raw && raw.trim()) || 'Sin especificar';
-    if (!motivo) {
-      setConfirmarBorrar(false);
-      return;
-    }
+  const borrarEvaluacion = async (motivo: string) => {
+    const motivoLimpio = (motivo ?? '').trim() || 'Sin especificar';
     setConfirmarBorrar(false);
     try {
-      await api.post<EvaluacionDetalle>(`/evaluaciones/${id}/borrar`, { motivo });
-      toast(`Evaluación borrada. Motivo: ${motivo}`);
+      await api.post<EvaluacionDetalle>(`/evaluaciones/${id}/borrar`, { motivo: motivoLimpio });
+      toast(`Evaluación borrada. Motivo: ${motivoLimpio}`);
       navigate('/evaluaciones');
     } catch (err) {
       toast(mensajeDeError(err), 'error');
@@ -787,13 +782,11 @@ export function EvaluacionPage() {
         onCancel={() => setConfirmarCierre(false)}
         onConfirm={() => void cerrarEvaluacion()}
       />
-      <ConfirmDialog
+      <BorrarEvaluacionModal
         open={confirmarBorrar}
-        title="Borrar evaluación"
-        description="Se pedirá el motivo del borrado y quedará guardado en el registro de evaluaciones borradas. La evaluación y sus calificaciones se eliminarán permanentemente."
-        confirmLabel="Continuar con borrado"
-        onCancel={() => setConfirmarBorrar(false)}
-        onConfirm={() => void borrarEvaluacion()}
+        onClose={() => setConfirmarBorrar(false)}
+        extraInfo={data ? `La evaluación del predio ${data.predio.nombre} (${data.estado}) se eliminará permanentemente.` : undefined}
+        onConfirm={(motivo) => void borrarEvaluacion(motivo)}
       />
     </div>
   );

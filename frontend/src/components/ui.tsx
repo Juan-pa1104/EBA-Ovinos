@@ -5,18 +5,21 @@ import {
   Loader2,
   RefreshCw,
   Search,
+  Trash2 as TrashIcon,
   X,
   type LucideIcon,
 } from 'lucide-react';
 import {
   useEffect,
   useId,
+  useState,
   type ButtonHTMLAttributes,
   type InputHTMLAttributes,
   type ReactNode,
   type SelectHTMLAttributes,
   type TextareaHTMLAttributes,
 } from 'react';
+import { createPortal } from 'react-dom';
 import type { Clasificacion, EstadoEvaluacion, MetodoEvaluacion, Puntaje } from '../api/types';
 import {
   cn,
@@ -624,7 +627,7 @@ export function Modal({
 
   if (!open) return null;
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-end justify-center bg-brand-950/40 p-0 backdrop-blur-sm sm:items-center sm:p-6"
       onMouseDown={(evento) => {
@@ -634,7 +637,7 @@ export function Modal({
     >
       <div
         className={cn(
-          'flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-3xl border border-white/60 bg-white shadow-lift animate-fade-in sm:rounded-3xl',
+          'flex max-h-[92vh] w-full flex-col overflow-hidden rounded-t-3xl border border-white/60 bg-white shadow-lift sm:rounded-3xl',
           TAMANOS_MODAL[size],
         )}
         role="dialog"
@@ -662,7 +665,8 @@ export function Modal({
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
@@ -710,6 +714,114 @@ export function ConfirmDialog({
       }
     >
       <p className="text-sm leading-relaxed text-brand-900/65">{description}</p>
+    </Modal>
+  );
+}
+
+const MOTIVOS_BORRADO = ['Error de prueba', 'Prueba equivocación', 'Otro'] as const;
+
+export function BorrarEvaluacionModal({
+  open,
+  onClose,
+  onConfirm,
+  loading = false,
+  extraInfo,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onConfirm: (motivo: string) => void | Promise<void>;
+  loading?: boolean;
+  extraInfo?: string;
+}) {
+  const [motivo, setMotivo] = useState('');
+  const [seleccionado, setSeleccionado] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (open) {
+      setMotivo('');
+      setSeleccionado(null);
+    }
+  }, [open]);
+
+  const valido = motivo.trim().length >= 3;
+
+  const elegir = (m: string) => {
+    setSeleccionado(m);
+    if (m === 'Otro') {
+      setMotivo('');
+    } else {
+      setMotivo(m);
+    }
+  };
+
+  return (
+    <Modal
+      open={open}
+      onClose={onClose}
+      title="Borrar evaluación"
+      description="El motivo es obligatorio y quedará guardado en el registro de evaluaciones borradas. La evaluación y sus calificaciones se eliminarán permanentemente."
+      size="sm"
+      footer={
+        <>
+          <Button variant="outline" onClick={onClose} disabled={loading}>
+            Cancelar
+          </Button>
+          <Button
+            variant="danger"
+            onClick={() => void onConfirm(motivo.trim())}
+            loading={loading}
+            disabled={!valido || loading}
+            icon={TrashIcon}
+          >
+            Borrar evaluación
+          </Button>
+        </>
+      }
+    >
+      {extraInfo && (
+        <p className="mb-4 rounded-xl bg-red-50 px-3 py-2 text-xs leading-relaxed text-red-800">
+          {extraInfo}
+        </p>
+      )}
+      <div className="space-y-4">
+        <div>
+          <p className="field-label">Motivo del borrado *</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {MOTIVOS_BORRADO.map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => elegir(m)}
+                className={cn(
+                  'rounded-full border px-3 py-1.5 text-xs font-bold transition',
+                  seleccionado === m
+                    ? 'border-red-600 bg-red-600 text-white'
+                    : 'border-brand-900/15 bg-white text-brand-900/70 hover:border-red-300 hover:bg-red-50',
+                )}
+              >
+                {m}
+              </button>
+            ))}
+          </div>
+          <p className="mt-2 text-[11px] leading-relaxed text-brand-900/50">
+            Elige una opción rápida o escribe tu propio motivo en el campo de abajo.
+          </p>
+        </div>
+        <Textarea
+          label="Escribe el motivo"
+          value={motivo}
+          onChange={(e) => {
+            const v = e.target.value;
+            setMotivo(v);
+            setSeleccionado(null);
+          }}
+          placeholder="Ej: Error de prueba, equivocación de predio, revisión técnica, otro..."
+          rows={4}
+          maxLength={255}
+          hint="Mínimo 3 caracteres. Quedará en el registro de evaluaciones borradas."
+          error={!valido && motivo.length > 0 ? 'El motivo debe tener al menos 3 caracteres.' : undefined}
+        />
+      </div>
     </Modal>
   );
 }
