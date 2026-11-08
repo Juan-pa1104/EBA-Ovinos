@@ -15,6 +15,7 @@ import { PredioFormPage } from './pages/PredioFormPage';
 import { PrediosPage } from './pages/PrediosPage';
 import { ReportePage } from './pages/ReportePage';
 import { ResultadosPage } from './pages/ResultadosPage';
+import { EvaluacionesBorradasPage } from './pages/EvaluacionesBorradasPage';
 import { UsuariosPage } from './pages/UsuariosPage';
 
 export default function App() {
@@ -37,6 +38,7 @@ export default function App() {
             <Route path="/predios/nuevo" element={<PredioFormPage />} />
             <Route path="/predios/:id/editar" element={<PredioFormPage />} />
             <Route path="/evaluaciones/nueva" element={<NuevaEvaluacionPage />} />
+            <Route path="/evaluaciones/borradas" element={<EvaluacionesBorradasPage />} />
             <Route path="/evaluaciones/:id" element={<EvaluacionPage />} />
           </Route>
 

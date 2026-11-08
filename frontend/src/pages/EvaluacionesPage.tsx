@@ -4,8 +4,10 @@ import {
   ClipboardList,
   FilePenLine,
   Gauge,
+  History,
   Plus,
   SlidersHorizontal,
+  Trash2,
 } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -119,9 +121,16 @@ export function EvaluacionesPage() {
         }
         actions={
           puedeCrear ? (
-            <Link to="/evaluaciones/nueva">
-              <Button icon={Plus}>Nueva evaluación</Button>
-            </Link>
+            <div className="flex gap-2">
+              <Link to="/evaluaciones/borradas">
+                <Button variant="outline" icon={History}>
+                  Historial de borradas
+                </Button>
+              </Link>
+              <Link to="/evaluaciones/nueva">
+                <Button icon={Plus}>Nueva evaluación</Button>
+              </Link>
+            </div>
           ) : undefined
         }
       />
