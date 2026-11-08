@@ -1,0 +1,662 @@
+================================================================================
+ESTRUCTURA Y ARQUITECTURA - APLICACIÓN ICA BIENESTAR ANIMAL
+Basado en los Requerimientos Funcionales y No Funcionales
+================================================================================
+
+1. ARQUITECTURA GENERAL DEL SISTEMA
+--------------------------------------------------------------------------------
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           GOOGLE CLOUD PLATFORM                            │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐  │
+│  │   Angular   │◄──►│  API NestJS │◄──►│  Cloud SQL  │    │Cloud Storage│  │
+│  │  Frontend   │    │   Backend   │    │  MariaDB    │    │  Evidencias │  │
+│  └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘  │
+│         │                  │                                       ▲        │
+│         │                  │                                       │        │
+│         │                  ▼                                       │        │
+│         │           ┌─────────────┐                                │        │
+│         │           │Firebase Auth│                                │        │
+│         │           │   (JWT)     │                                │        │
+│         │           └─────────────┘                                │        │
+│         │                                                          │        │
+│         ▼                                                          │        │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐             │        │
+│  │  Cloud Run  │    │Cloud Logging│    │Cloud Monitor│             │        │
+│  │  (Deploy)   │    │             │    │             │             │        │
+│  └─────────────┘    └─────────────┘    └─────────────┘             │        │
+│                                                                    │        │
+│  ┌─────────────┐    ┌─────────────┐                               │        │
+│  │  Vertex AI  │───►│  API Externa│───────────────────────────────┘        │
+│  │  (Gemini)   │    │  (Fallback) │                                        │
+│  └─────────────┘    └─────────────┘                                        │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+
+2. ESTRUCTURA DEL PROYECTO FRONTEND (ANGULAR)
+--------------------------------------------------------------------------------
+
+src/
+├── app/
+│   ├── core/                          # Módulo Core (Singleton)
+│   │   ├── guards/
+│   │   │   ├── auth.guard.ts
+│   │   │   └── role.guard.ts
+│   │   ├── interceptors/
+│   │   │   ├── auth.interceptor.ts
+│   │   │   └── error.interceptor.ts
+│   │   ├── services/
+│   │   │   ├── auth.service.ts
+│   │   │   ├── usuario.service.ts
+│   │   │   └── notificacion.service.ts
+│   │   └── models/
+│   │       ├── usuario.model.ts
+│   │       ├── finca.model.ts
+│   │       └── evaluacion.model.ts
+│   │
+│   ├── modules/
+│   │   ├── auth/                      # Módulo Autenticación (RF01-RF04)
+│   │   │   ├── login/
+│   │   │   ├── registro/
+│   │   │   ├── recuperar-password/
+│   │   │   └── auth.module.ts
+│   │   │
+│   │   ├── admin/                     # Módulo Administración (RF02, RF03, RF35)
+│   │   │   ├── usuarios/
+│   │   │   ├── roles/
+│   │   │   ├── catologos/
+│   │   │   └── admin.module.ts
+│   │   │
+│   │   ├── fincas/                    # Módulo Fincas (RF05-RF08)
+│   │   │   ├── lista-fincas/
+│   │   │   ├── detalle-finca/
+│   │   │   ├── crear-finca/
+│   │   │   ├── mapa-ubicacion/
+│   │   │   └── fincas.module.ts
+│   │   │
+│   │   ├── parametrizacion/           # Módulo Parametrización (RF09-RF12)
+│   │   │   ├── especies/
+│   │   │   ├── criterios/
+│   │   │   ├── indicadores/
+│   │   │   ├── ponderaciones/
+│   │   │   └── parametrizacion.module.ts
+│   │   │
+│   │   ├── evaluacion/                # Módulo Evaluación (RF13-RF23)
+│   │   │   ├── lista-evaluaciones/
+│   │   │   ├── crear-evaluacion/
+│   │   │   ├── diligenciar/
+│   │   │   ├── guardar-parcial/
+│   │   │   ├── calcular-puntaje/
+│   │   │   ├── diagnostico/
+│   │   │   └── evaluacion.module.ts
+│   │   │
+│   │   ├── recomendaciones/           # Módulo Recomendaciones IA (RF24-RF27)
+│   │   │   ├── recomendaciones-ia/
+│   │   │   ├── editar-recomendacion/
+│   │   │   ├── plan-mejora/
+│   │   │   └── recomendaciones.module.ts
+│   │   │
+│   │   ├── reportes/                  # Módulo Reportes (RF28-RF33)
+│   │   │   ├── historial/
+│   │   │   ├── comparativa/
+│   │   │   ├── dashboard/
+│   │   │   ├── reporte-pdf/
+│   │   │   └── reportes.module.ts
+│   │   │
+│   │   └── certificacion/             # Módulo Certificación (RF38)
+│   │       ├── generar-certificado/
+│   │       └── certificacion.module.ts
+│   │
+│   ├── shared/                        # Módulo Compartido
+│   │   ├── components/
+│   │   │   ├── header/
+│   │   │   ├── sidebar/
+│   │   │   ├── footer/
+│   │   │   ├── data-table/
+│   │   │   ├── file-upload/
+│   │   │   ├── chart/
+│   │   │   └── modal/
+│   │   ├── directives/
+│   │   ├── pipes/
+│   │   └── shared.module.ts
+│   │
+│   ├── app-routing.module.ts
+│   ├── app.component.ts
+│   └── app.module.ts
+│
+├── assets/
+│   ├── images/
+│   ├── icons/
+│   └── styles/
+│       ├── _variables.scss
+│       ├── _mixins.scss
+│       └── themes/
+│           ├── light-theme.scss
+│           └── dark-theme.scss
+│
+├── environments/
+│   ├── environment.ts
+│   └── environment.prod.ts
+│
+├── styles.scss
+├── index.html
+└── main.ts
+
+
+3. ESTRUCTURA DEL PROYECTO BACKEND (NESTJS)
+--------------------------------------------------------------------------------
+
+src/
+├── modules/
+│   ├── auth/                          # RF01-RF04
+│   │   ├── auth.controller.ts
+│   │   ├── auth.service.ts
+│   │   ├── auth.module.ts
+│   │   ├── strategies/
+│   │   │   ├── jwt.strategy.ts
+│   │   │   └── firebase.strategy.ts
+│   │   └── dto/
+│   │
+│   ├── usuarios/                      # RF02, RF03
+│   │   ├── usuario.controller.ts
+│   │   ├── usuario.service.ts
+│   │   ├── usuario.module.ts
+│   │   └── dto/
+│   │
+│   ├── fincas/                        # RF05-RF08
+│   │   ├── finca.controller.ts
+│   │   ├── finca.service.ts
+│   │   ├── finca.module.ts
+│   │   └── dto/
+│   │
+│   ├── parametrizacion/               # RF09-RF12
+│   │   ├── especie.controller.ts
+│   │   ├── criterio.controller.ts
+│   │   ├── indicador.controller.ts
+│   │   ├── ponderacion.controller.ts
+│   │   └── parametrizacion.module.ts
+│   │
+│   ├── evaluacion/                    # RF13-RF23
+│   │   ├── evaluacion.controller.ts
+│   │   ├── evaluacion.service.ts
+│   │   ├── calculadora.service.ts
+│   │   ├── diagnostico.service.ts
+│   │   └── evaluacion.module.ts
+│   │
+│   ├── recomendaciones/               # RF24-RF27
+│   │   ├── recomendacion.controller.ts
+│   │   ├── ia.service.ts
+│   │   └── recomendacion.module.ts
+│   │
+│   ├── reportes/                      # RF28-RF33
+│   │   ├── reporte.controller.ts
+│   │   ├── reporte.service.ts
+│   │   └── reportes.module.ts
+│   │
+│   ├── certificacion/                 # RF38
+│   │   ├── certificacion.controller.ts
+│   │   └── certificacion.module.ts
+│   │
+│   ├── notificaciones/                # RF40
+│   │   ├── notificacion.controller.ts
+│   │   └── notificacion.module.ts
+│   │
+│   └── auditoria/                     # RF34, RNF08
+│       ├── auditoria.controller.ts
+│       └── auditoria.module.ts
+│
+├── common/
+│   ├── decorators/
+│   │   ├── roles.decorator.ts
+│   │   └── current-user.decorator.ts
+│   ├── filters/
+│   ├── interceptors/
+│   └── pipes/
+│
+├── config/
+│   ├── database.config.ts
+│   ├── firebase.config.ts
+│   └── cloud.config.ts
+│
+├── database/
+│   ├── migrations/
+│   ├── seeds/
+│   └── procedures/
+│       └── sp_calcular_puntaje_evaluacion.sql
+│
+├── main.ts
+└── app.module.ts
+
+
+4. MODELO DE BASE DE DATOS (CLOUD SQL - MARIADB)
+--------------------------------------------------------------------------------
+
+-- MÓDULO DE SEGURIDAD (RF01-RF04)
+CREATE TABLE roles (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(50) NOT NULL,  -- admin, docente, estudiante, consultor
+    descripcion TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE usuarios (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    rol_id INT NOT NULL,
+    activo BOOLEAN DEFAULT TRUE,
+    ultimo_acceso TIMESTAMP NULL,
+    token_recuperacion VARCHAR(255) NULL,
+    fecha_expiracion_token TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (rol_id) REFERENCES roles(id)
+);
+
+-- MÓDULO DE FINCAS (RF05-RF08)
+CREATE TABLE departamentos (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(100) NOT NULL,
+    codigo_dane VARCHAR(10)
+);
+
+CREATE TABLE municipios (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    departamento_id INT NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
+    codigo_dane VARCHAR(10),
+    FOREIGN KEY (departamento_id) REFERENCES departamentos(id)
+);
+
+CREATE TABLE sistemas_productivos (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(100) NOT NULL,  -- familiar, extensivo, semi_intensivo, intensivo
+    descripcion TEXT
+);
+
+CREATE TABLE fincas (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(200) NOT NULL,
+    propietario VARCHAR(200) NOT NULL,
+    departamento_id INT NOT NULL,
+    municipio_id INT NOT NULL,
+    vereda VARCHAR(100),
+    direccion VARCHAR(255),
+    latitud DECIMAL(10,8) NULL,
+    longitud DECIMAL(11,8) NULL,
+    sistema_productivo_id INT NOT NULL,
+    usuario_id INT NOT NULL,  -- propietario/encargado
+    activo BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (departamento_id) REFERENCES departamentos(id),
+    FOREIGN KEY (municipio_id) REFERENCES municipios(id),
+    FOREIGN KEY (sistema_productivo_id) REFERENCES sistemas_productivos(id),
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+);
+
+CREATE TABLE especies (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(100) NOT NULL,  -- ovino, caprino, porcino, etc.
+    nombre_cientifico VARCHAR(100),
+    activo BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE finca_especie (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    finca_id INT NOT NULL,
+    especie_id INT NOT NULL,
+    FOREIGN KEY (finca_id) REFERENCES fincas(id),
+    FOREIGN KEY (especie_id) REFERENCES especies(id),
+    UNIQUE KEY unique_finca_especie (finca_id, especie_id)
+);
+
+CREATE TABLE inventario_animal (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    finca_id INT NOT NULL,
+    especie_id INT NOT NULL,
+    grupo_etario VARCHAR(50) NOT NULL,  -- lactantes, jovenes, adultos
+    categoria VARCHAR(50),  -- machos, hembras, reproductores
+    cantidad INT NOT NULL,
+    fecha_registro DATE NOT NULL,
+    FOREIGN KEY (finca_id) REFERENCES fincas(id),
+    FOREIGN KEY (especie_id) REFERENCES especies(id)
+);
+
+-- MÓDULO DE PARAMETRIZACIÓN (RF09-RF12)
+CREATE TABLE versiones_parametrizacion (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    especie_id INT NOT NULL,
+    version INT NOT NULL,
+    activo BOOLEAN DEFAULT TRUE,
+    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (especie_id) REFERENCES especies(id)
+);
+
+CREATE TABLE dimensiones (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    especie_id INT NOT NULL,
+    nombre VARCHAR(100) NOT NULL,  -- 5 libertades
+    descripcion TEXT,
+    peso DECIMAL(5,2) NOT NULL,  -- 30, 30, 30, 10
+    orden INT NOT NULL,
+    activo BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (especie_id) REFERENCES especies(id)
+);
+
+CREATE TABLE criterios (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    dimension_id INT NOT NULL,
+    nombre VARCHAR(200) NOT NULL,
+    descripcion TEXT,
+    peso DECIMAL(5,2) NOT NULL,
+    orden INT NOT NULL,
+    activo BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (dimension_id) REFERENCES dimensiones(id)
+);
+
+CREATE TABLE indicadores (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    criterio_id INT NOT NULL,
+    nombre VARCHAR(200) NOT NULL,
+    descripcion TEXT,
+    metodo_evaluacion ENUM('documental', 'visual', 'muestreo') NOT NULL,
+    tipo_respuesta ENUM('si_no', 'seleccion_unica', 'seleccion_multiple', 
+                        'escala', 'numerica', 'textual', 'evidencia') NOT NULL,
+    umbral_aprobacion DECIMAL(10,2) NULL,
+    peso DECIMAL(5,2) NOT NULL,
+    orden INT NOT NULL,
+    activo BOOLEAN DEFAULT TRUE,
+    FOREIGN KEY (criterio_id) REFERENCES criterios(id)
+);
+
+CREATE TABLE opciones_respuesta (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    indicador_id INT NOT NULL,
+    opcion VARCHAR(255) NOT NULL,
+    valor DECIMAL(10,2) NOT NULL,
+    orden INT NOT NULL,
+    FOREIGN KEY (indicador_id) REFERENCES indicadores(id)
+);
+
+-- MÓDULO DE EVALUACIÓN (RF13-RF23)
+CREATE TABLE estados_evaluacion (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(50) NOT NULL,  -- borrador, en_proceso, finalizada, validada, cerrada
+    descripcion TEXT
+);
+
+CREATE TABLE evaluaciones (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    finca_id INT NOT NULL,
+    especie_id INT NOT NULL,
+    evaluador_id INT NOT NULL,
+    estado_id INT NOT NULL DEFAULT 1,
+    puntaje_total DECIMAL(5,2) NULL,
+    clasificacion VARCHAR(50) NULL,  -- excelente, alto, medio, bajo
+    observaciones_generales TEXT NULL,
+    fecha_inicio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_finalizacion TIMESTAMP NULL,
+    fecha_guardado_parcial TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (finca_id) REFERENCES fincas(id),
+    FOREIGN KEY (especie_id) REFERENCES especies(id),
+    FOREIGN KEY (evaluador_id) REFERENCES usuarios(id),
+    FOREIGN KEY (estado_id) REFERENCES estados_evaluacion(id)
+);
+
+CREATE TABLE detalle_evaluacion (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    evaluacion_id INT NOT NULL,
+    indicador_id INT NOT NULL,
+    respuesta TEXT NULL,
+    puntaje_obtenido DECIMAL(5,2) NULL,
+    porcentaje_cumplimiento DECIMAL(5,2) NULL,
+    observaciones TEXT NULL,
+    FOREIGN KEY (evaluacion_id) REFERENCES evaluaciones(id),
+    FOREIGN KEY (indicador_id) REFERENCES indicadores(id)
+);
+
+CREATE TABLE evidencias (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    detalle_evaluacion_id INT NOT NULL,
+    tipo ENUM('imagen', 'documento', 'video') NOT NULL,
+    nombre_archivo VARCHAR(255) NOT NULL,
+    ruta_cloud VARCHAR(500) NOT NULL,  -- Cloud Storage URL
+    tamano_bytes INT NOT NULL,
+    tipo_mime VARCHAR(100) NOT NULL,
+    fecha_subida TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (detalle_evaluacion_id) REFERENCES detalle_evaluacion(id)
+);
+
+-- MÓDULO DE DIAGNÓSTICO Y RECOMENDACIONES (RF22-RF27)
+CREATE TABLE diagnosticos (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    evaluacion_id INT NOT NULL,
+    fortalezas TEXT NULL,
+    incumplimientos TEXT NULL,
+    alertas_criticas TEXT NULL,
+    oportunidades_mejora TEXT NULL,
+    fecha_generacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (evaluacion_id) REFERENCES evaluaciones(id)
+);
+
+CREATE TABLE recomendaciones (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    evaluacion_id INT NOT NULL,
+    indicador_id INT NULL,
+    tipo ENUM('ia', 'manual') NOT NULL,
+    descripcion TEXT NOT NULL,
+    prioridad ENUM('alta', 'media', 'baja') NOT NULL,
+    estado ENUM('pendiente', 'en_proceso', 'completada') DEFAULT 'pendiente',
+    responsable VARCHAR(200) NULL,
+    plazo DATE NULL,
+    editada_por INT NULL,
+    fecha_edicion TIMESTAMP NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (evaluacion_id) REFERENCES evaluaciones(id),
+    FOREIGN KEY (indicador_id) REFERENCES indicadores(id),
+    FOREIGN KEY (editada_por) REFERENCES usuarios(id)
+);
+
+-- MÓDULO DE CERTIFICACIÓN (RF38)
+CREATE TABLE certificaciones (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    evaluacion_id INT NOT NULL,
+    numero_certificado VARCHAR(100) UNIQUE NOT NULL,
+    fecha_emision TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fecha_vencimiento TIMESTAMP NOT NULL,
+    estado ENUM('vigente', 'vencido', 'revocado') DEFAULT 'vigente',
+    ruta_pdf VARCHAR(500) NULL,
+    enviado_por_correo BOOLEAN DEFAULT FALSE,
+    fecha_envio TIMESTAMP NULL,
+    FOREIGN KEY (evaluacion_id) REFERENCES evaluaciones(id)
+);
+
+-- MÓDULO DE AUDITORÍA (RF34, RNF08)
+CREATE TABLE auditoria (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    tabla VARCHAR(50) NOT NULL,
+    registro_id INT NOT NULL,
+    accion ENUM('INSERT', 'UPDATE', 'DELETE') NOT NULL,
+    usuario_id INT NOT NULL,
+    datos_anteriores JSON NULL,
+    datos_nuevos JSON NULL,
+    ip_address VARCHAR(45) NULL,
+    user_agent VARCHAR(500) NULL,
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+);
+
+-- MÓDULO DE NOTIFICACIONES (RF40)
+CREATE TABLE notificaciones (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    usuario_id INT NOT NULL,
+    tipo ENUM('evaluacion_pendiente', 'aprobacion', 'observacion', 'certificacion') NOT NULL,
+    titulo VARCHAR(200) NOT NULL,
+    mensaje TEXT NOT NULL,
+    leida BOOLEAN DEFAULT FALSE,
+    ruta_relacionada VARCHAR(255) NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
+);
+
+-- PROCEDIMIENTOS ALMACENADOS
+DELIMITER //
+
+CREATE PROCEDURE sp_calcular_puntaje_evaluacion(
+    IN p_evaluacion_id INT
+)
+BEGIN
+    DECLARE v_puntaje_total DECIMAL(5,2);
+    
+    SELECT SUM(de.puntaje_obtenido * i.peso / 100)
+    INTO v_puntaje_total
+    FROM detalle_evaluacion de
+    JOIN indicadores i ON de.indicador_id = i.id
+    WHERE de.evaluacion_id = p_evaluacion_id;
+    
+    UPDATE evaluaciones
+    SET puntaje_total = v_puntaje_total,
+        clasificacion = CASE
+            WHEN v_puntaje_total >= 90 THEN 'excelente'
+            WHEN v_puntaje_total >= 75 THEN 'alto'
+            WHEN v_puntaje_total >= 50 THEN 'medio'
+            ELSE 'bajo'
+        END
+    WHERE id = p_evaluacion_id;
+END //
+
+DELIMITER ;
+
+
+5. CONFIGURACIÓN GOOGLE CLOUD (CLOUDBUILD.YAML)
+--------------------------------------------------------------------------------
+
+steps:
+  # Build del backend
+  - name: 'node:18'
+    entrypoint: 'npm'
+    args: ['ci']
+    dir: 'backend'
+  
+  - name: 'node:18'
+    entrypoint: 'npm'
+    args: ['run', 'build']
+    dir: 'backend'
+  
+  # Test
+  - name: 'node:18'
+    entrypoint: 'npm'
+    args: ['run', 'test']
+    dir: 'backend'
+  
+  # Deploy backend a Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'ica-backend'
+      - '--source=./backend'
+      - '--region=us-central1'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+  
+  # Build del frontend
+  - name: 'node:18'
+    entrypoint: 'npm'
+    args: ['ci']
+    dir: 'frontend'
+  
+  - name: 'node:18'
+    entrypoint: 'npm'
+    args: ['run', 'build']
+    dir: 'frontend'
+  
+  # Deploy frontend a Firebase Hosting
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'firebase'
+    args: ['deploy', '--only', 'hosting']
+
+
+6. MAPEO DE REQUERIMIENTOS A MÓDULOS
+--------------------------------------------------------------------------------
+
+| Módulo           | RF Asociados    | Descripción                                      |
+|------------------|-----------------|--------------------------------------------------|
+| Seguridad        | RF01-RF04       | Autenticación, roles, usuarios, recuperación     |
+| Administración   | RF02,RF03,RF35  | Gestión de usuarios, catálogos, multi-especie    |
+| Fincas           | RF05-RF08       | CRUD fincas, ubicación, especies, inventario     |
+| Parametrización  | RF09-RF12       | Especies, criterios, indicadores, ponderaciones  |
+| Evaluación       | RF13-RF23       | Creación, diligenciamiento, cálculo, diagnóstico |
+| Recomendaciones  | RF24-RF27       | IA, contextualización, edición, plan mejora      |
+| Reportes         | RF28-RF33       | Historial, comparativa, dashboard, PDF, export   |
+| Certificación    | RF38            | Generación y envío de certificados               |
+| Notificaciones   | RF40            | Correo y notificaciones internas                 |
+| Auditoría        | RF34, RNF08     | Trazabilidad de todas las acciones               |
+
+
+7. REQUERIMIENTOS NO FUNCIONALES - IMPLEMENTACIÓN
+--------------------------------------------------------------------------------
+
+| RNF   | Implementación                                              |
+|-------|-------------------------------------------------------------|
+| RNF01 | Angular 17+ con arquitectura modular                         |
+| RNF02 | Despliegue en Google Cloud Run + Cloud SQL                  |
+| RNF03 | Arquitectura de microservicios escalables                 |
+| RNF04 | Health checks + auto-scaling + load balancer                |
+| RNF05 | Firebase Auth + JWT + refresh tokens                        |
+| RNF06 | TLS 1.3 + cifrado AES-256 en reposo                         |
+| RNF07 | Guards de Angular + decoradores de roles                     |
+| RNF08 | Interceptor de auditoría en backend                         |
+| RNF09 | Lazy loading + OnPush change detection                      |
+| RNF10 | Procedimientos almacenados optimizados                      |
+| RNF11 | Cloud Storage con URLs firmadas                             |
+| RNF12 | Angular Material + diseño consistente                        |
+| RNF13 | Responsive breakpoints + flexbox/grid                       |
+| RNF14 | WCAG 2.1 AA compliance                                      |
+| RNF15 | Código documentado + ESLint + Prettier                      |
+| RNF16 | Componentes reutilizables por especie                       |
+| RNF17 | Parametrización desde base de datos                         |
+| RNF18 | Integración con Vertex AI / API externa                     |
+| RNF19 | Chrome, Firefox, Safari, Edge                               |
+| RNF20 | Backups automáticos diarios                                 |
+| RNF21 | Validaciones en frontend y backend                          |
+| RNF22 | Cloud Logging + Cloud Monitoring                            |
+| RNF23 | Cloud Build para CI/CD                                     |
+| RNF24 | Variables de entorno por ambiente                           |
+| RNF25 | IA como apoyo, no sustituto                                |
+| RNF26 | Fallback si IA no disponible                                |
+| RNF27 | Cumplimiento Ley 51 de 2022 (Colombia)                      |
+| RNF28 | Versionamiento de parametrizaciones                          |
+| RNF29 | Design system consistente                                   |
+| RNF30 | Arquitectura extensible para nuevas especies                |
+
+
+8. STACK TECNOLÓGICO FINAL
+--------------------------------------------------------------------------------
+
+| Capa              | Tecnología              | Justificación                           |
+|-------------------|-------------------------|-----------------------------------------|
+| Frontend          | Angular 17+             | RNF01, requerido por el documento       |
+| UI Components     | Angular Material        | RNF12, RNF29                            |
+| Backend           | NestJS (Node.js)        | RNF15, modularidad                      |
+| Base de Datos     | Cloud SQL MariaDB       | RNFG03, ya existente                    |
+| Autenticación     | Firebase Auth           | RNF05, RNFG04                           |
+| Almacenamiento    | Cloud Storage           | RNFG02, RNF11                           |
+| IA                | Vertex AI (Gemini)      | RNFG04, RNF24                           |
+| Monitoreo         | Cloud Logging/Monitoring| RNFG05, RNF22                           |
+| CI/CD             | Cloud Build             | RNF23                                   |
+| Hosting           | Firebase Hosting        | RNFG01                                  |
+
+
+================================================================================
+Fin del documento
+================================================================================

@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ICA Bienestar Ovino V3.0 – Sistema de Evaluación</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { inter: ['Inter', 'sans-serif'] },
+                    colors: {
+                        primary: { 50:'#f0fdf4',100:'#dcfce7',200:'#bbf7d0',300:'#86efac',400:'#4ade80',500:'#22c55e',600:'#16a34a',700:'#15803d',800:'#166534',900:'#14532d',950:'#052e16' },
+                        agro: { dark:'#0a1f14', card:'#122a1c', accent:'#2dd4a8', warm:'#f59e0b' }
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'fade-in': 'fadeIn 0.6s ease-out',
+                        'slide-up': 'slideUp 0.6s ease-out',
+                    },
+                    keyframes: {
+                        float: { '0%,100%': { transform: 'translateY(0px)' }, '50%': { transform: 'translateY(-20px)' } },
+                        fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(30px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { font-family: 'Inter', sans-serif; }
+        .glass { background: rgba(255,255,255,0.08); backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.12); }
+        .glass-dark { background: rgba(10,31,20,0.85); backdrop-filter: blur(16px); border: 1px solid rgba(45,212,168,0.15); }
+        .gradient-text { background: linear-gradient(135deg, #2dd4a8, #22c55e, #4ade80); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero-bg { background: url('https://images.unsplash.com/photo-1484557985045-edf25e08da73?w=1920&q=80') center/cover; }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 60px rgba(34,197,94,0.15); }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; }
+        .accordion-open { max-height: 1200px; }
+        ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: #0a1f14; } ::-webkit-scrollbar-thumb { background: #166534; border-radius: 4px; }
+        .glow-border { position: relative; }
+        .glow-border::before { content: ''; position: absolute; inset: -1px; border-radius: inherit; background: linear-gradient(135deg, #22c55e, #2dd4a8, #22c55e); z-index: -1; opacity: 0.5; }
+        .stat-ring { background: conic-gradient(#22c55e calc(var(--pct) * 1%), #1a3025 0%); border-radius: 50%; width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; }
+        .stat-ring-inner { background: #122a1c; border-radius: 50%; width: 96px; height: 96px; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+    </style>
+</head>
+<body class="bg-gray-50 dark:bg-agro-dark text-gray-800 dark:text-gray-200 font-inter transition-colors duration-300">
+
+<!-- ==================== NAVBAR ==================== -->
+<nav id="navbar" class="fixed top-0 w-full z-50 bg-white/85 dark:bg-agro-dark/90 backdrop-blur-xl border-b border-gray-200/30 dark:border-primary-800/20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center shadow-lg shadow-primary-500/30">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-gray-900 dark:text-white">ICA <span class="text-primary-600 dark:text-primary-400">Bienestar</span></h1>
+                    <p class="text-[10px] text-gray-500 dark:text-gray-400 -mt-1">Ovino V3.0 · 2024</p>
+                </div>
+            </div>
+            <div class="hidden md:flex items-center space-x-1">
+                <a href="#hero" class="px-3 py-2 rounded-lg text-sm font-medium hover:bg-primary-50 dark:hover:bg-primary-900/20 transition">Inicio</a>
+                <a href="#metricas" class="px-3 py-2 rounded-lg text-sm font-medium hover:bg-primary-50 dark:hover:bg-primary-900/20 transition">Métricas</a>
+                <a href="#estructura" class="px-3 py-2 rounded-lg text-sm font-medium hover:bg-primary-50 dark:hover:bg-primary-900/20 transition">Base de Datos</a>
+                <a href="#simulador" class="px-3 py-2 rounded-lg text-sm font-medium hover:bg-primary-50 dark:hover:bg-primary-900/20 transition">Simulador</a>
+                <a href="#descarga" class="px-3 py-2 rounded-lg text-sm font-medium hover:bg-primary-50 dark:hover:bg-primary-900/20 transition">Descargas</a>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span id="bdEstado" class="hidden sm:inline-flex items-center space-x-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-gray-100 dark:bg-primary-900/30 text-gray-500 dark:text-gray-400">
+                    <span class="w-2 h-2 rounded-full bg-gray-400 animate-pulse"></span><span>BD…</span>
+                </span>
+                <button id="themeToggle" class="p-2 rounded-xl bg-gray-100 dark:bg-primary-900/30 hover:bg-primary-100 dark:hover:bg-primary-900/50 transition">
+                    <svg id="iconSun" class="w-5 h-5 text-yellow-500 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                    <svg id="iconMoon" class="w-5 h-5 text-gray-600 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+                </button>
+                <a href="#simulador" class="hidden sm:flex px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white text-sm font-semibold rounded-xl shadow-lg shadow-primary-600/30 transition">
+                    Evaluar ahora
+                </a>
+                <button id="mobileMenuBtn" class="md:hidden p-2 rounded-lg bg-gray-100 dark:bg-primary-900/30">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div id="mobileMenu" class="md:hidden hidden bg-white dark:bg-agro-dark border-t border-gray-200 dark:border-primary-800/20 px-4 py-4 space-y-2">
+        <a href="#hero" class="block px-4 py-2 rounded-lg text-sm hover:bg-primary-50 dark:hover:bg-primary-900/20">Inicio</a>
+        <a href="#metricas" class="block px-4 py-2 rounded-lg text-sm hover:bg-primary-50 dark:hover:bg-primary-900/20">Métricas</a>
+        <a href="#estructura" class="block px-4 py-2 rounded-lg text-sm hover:bg-primary-50 dark:hover:bg-primary-900/20">Base de Datos</a>
+        <a href="#simulador" class="block px-4 py-2 rounded-lg text-sm hover:bg-primary-50 dark:hover:bg-primary-900/20">Simulador</a>
+        <a href="#descarga" class="block px-4 py-2 rounded-lg text-sm hover:bg-primary-50 dark:hover:bg-primary-900/20">Descargas</a>
+    </div>
+</nav>
+
+<!-- ==================== HERO ==================== -->
+<section id="hero" class="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <div class="hero-bg absolute inset-0"></div>
+    <div class="absolute inset-0 bg-gradient-to-br from-primary-950/95 via-primary-900/88 to-agro-dark/92"></div>
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(45,212,168,0.15),transparent_60%)]"></div>
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-32 text-center">
+        <div class="animate-fade-in">
+            <div class="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-primary-500/15 border border-primary-500/30 text-primary-400 text-sm font-medium mb-8">
+                <span class="w-2 h-2 rounded-full bg-primary-400 animate-pulse"></span>
+                <span>ICA – Ovinocultura · Versión 3.0 · 2024</span>
+            </div>
+            <h1 class="text-4xl sm:text-5xl md:text-7xl font-black text-white leading-tight mb-6">
+                Sistema de Evaluación<br>de Bienestar Animal<br>
+                <span class="gradient-text">Especie Ovina</span>
+            </h1>
+            <p class="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto mb-10 leading-relaxed">
+                Panel de control interactivo para la metodología del <strong class="text-white">Instituto Colombiano Agropecuario</strong>.
+                Evalúa el bienestar de ovinos basado en las 5 libertades fundamentales con <span class="js-indicadores">31</span> indicadores y clasificación ICA.
+            </p>
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+                <a href="#simulador" class="group px-8 py-4 bg-primary-500 hover:bg-primary-600 text-white font-bold rounded-2xl shadow-2xl shadow-primary-500/40 transition-all hover:scale-105 flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                    <span>Simular Evaluación</span>
+                </a>
+                <a href="#estructura" class="px-8 py-4 glass text-white font-bold rounded-2xl hover:bg-white/15 transition-all flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>
+                    <span>Ver Base de Datos</span>
+                </a>
+                <a href="#descarga" class="px-8 py-4 border-2 border-primary-500/50 text-primary-400 font-bold rounded-2xl hover:bg-primary-500/10 transition-all flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    <span>Descargar SQL</span>
+                </a>
+            </div>
+        </div>
+        <!-- Stats strip -->
+        <div class="mt-20 grid grid-cols-2 md:grid-cols-5 gap-4 max-w-4xl mx-auto animate-slide-up" style="animation-delay:0.3s">
+            <div class="glass rounded-2xl p-5"><div class="text-3xl font-black text-primary-400" data-count="23">0</div><div class="text-xs text-gray-400 mt-1">Tablas</div></div>
+            <div class="glass rounded-2xl p-5"><div class="text-3xl font-black text-primary-400" data-count="5">0</div><div class="text-xs text-gray-400 mt-1">Libertades</div></div>
+            <div class="glass rounded-2xl p-5"><div class="text-3xl font-black text-primary-400" data-count="9">0</div><div class="text-xs text-gray-400 mt-1">Criterios</div></div>
+            <div class="glass rounded-2xl p-5"><div class="text-3xl font-black text-primary-400" data-count="31">0</div><div class="text-xs text-gray-400 mt-1">Indicadores</div></div>
+            <div class="glass rounded-2xl p-5 col-span-2 md:col-span-1"><div class="text-3xl font-black text-primary-400" data-count="4">0</div><div class="text-xs text-gray-400 mt-1">Niveles ICA</div></div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== MÉTRICAS ==================== -->
+<section id="metricas" class="py-24 bg-white dark:bg-agro-dark">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <span class="text-primary-600 dark:text-primary-400 font-semibold text-sm uppercase tracking-wider">Resumen del Sistema</span>
+            <h2 class="text-3xl sm:text-5xl font-black text-gray-900 dark:text-white mt-3">Métricas y Datos Clave</h2>
+            <p class="text-gray-500 dark:text-gray-400 mt-4 max-w-2xl mx-auto">Los indicadores fundamentales del backend que respaldan la evaluación de bienestar animal ovino según la metodología ICA.</p>
+        </div>
+
+        <!-- Grid principal -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+            <!-- Tablas -->
+            <div class="card-hover bg-gray-50 dark:bg-primary-950/30 rounded-3xl p-8 border border-gray-100 dark:border-primary-800/20">
+                <div class="w-14 h-14 rounded-2xl bg-primary-100 dark:bg-primary-900/40 flex items-center justify-center mb-6">
+                    <svg class="w-7 h-7 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>
+                </div>
+                <div id="mTablas" class="text-5xl font-black text-gray-900 dark:text-white mb-2">23</div>
+                <h3 class="font-bold text-lg text-gray-900 dark:text-white">Clases / Tablas mapeadas</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">Modelo relacional completo con restricciones FK, CHECK, UNIQUE y procedimientos almacenados.</p>
+            </div>
+            <!-- Libertades -->
+            <div class="card-hover bg-gray-50 dark:bg-primary-950/30 rounded-3xl p-8 border border-gray-100 dark:border-primary-800/20">
+                <div class="w-14 h-14 rounded-2xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mb-6">
+                    <svg class="w-7 h-7 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+                </div>
+                <div id="mLibertades" class="text-5xl font-black text-gray-900 dark:text-white mb-2">5</div>
+                <h3 class="font-bold text-lg text-gray-900 dark:text-white">Libertades de Bienestar</h3>
+                <div id="listaLibertades" class="space-y-2 mt-4"></div>
+            </div>
+            <!-- Clasificación -->
+            <div class="card-hover bg-gray-50 dark:bg-primary-950/30 rounded-3xl p-8 border border-gray-100 dark:border-primary-800/20">
+                <div class="w-14 h-14 rounded-2xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center mb-6">
+                    <svg class="w-7 h-7 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                </div>
+                <div class="text-5xl font-black text-gray-900 dark:text-white mb-2">4</div>
+                <h3 class="font-bold text-lg text-gray-900 dark:text-white">Niveles de Clasificación ICA</h3>
+                <div class="space-y-2 mt-4">
+                    <div class="flex items-center justify-between text-xs bg-green-50 dark:bg-green-900/20 rounded-lg px-3 py-2"><span class="font-semibold text-green-700 dark:text-green-400">Excelente</span><span class="font-bold text-green-600 dark:text-green-400">≥ 90 pts</span></div>
+                    <div class="flex items-center justify-between text-xs bg-blue-50 dark:bg-blue-900/20 rounded-lg px-3 py-2"><span class="font-semibold text-blue-700 dark:text-blue-400">Alto</span><span class="font-bold text-blue-600 dark:text-blue-400">≥ 75 pts</span></div>
+                    <div class="flex items-center justify-between text-xs bg-amber-50 dark:bg-amber-900/20 rounded-lg px-3 py-2"><span class="font-semibold text-amber-700 dark:text-amber-400">Medio</span><span class="font-bold text-amber-600 dark:text-amber-400">≥ 50 pts</span></div>
+                    <div class="flex items-center justify-between text-xs bg-red-50 dark:bg-red-900/20 rounded-lg px-3 py-2"><span class="font-semibold text-red-700 dark:text-red-400">Bajo</span><span class="font-bold text-red-600 dark:text-red-400">< 50 pts</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Indicadores destacados - FAMACHA, Condición corporal, etc. -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="card-hover bg-gradient-to-br from-primary-500 to-primary-700 rounded-3xl p-6 text-white shadow-xl shadow-primary-500/20">
+                <svg class="w-8 h-8 mb-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                <h3 class="font-bold text-lg mb-1">FAMACHA</h3>
+                <p class="text-sm text-primary-100 opacity-90">Evaluación de anemia por coloración de conjuntiva ocular. Escala 1-5, identifica animales con calificación 4-5.</p>
+                <div class="mt-4 text-xs bg-white/20 rounded-lg px-3 py-2 font-mono">≤3% animales FAMACHA 4-5 = 100 pts</div>
+            </div>
+            <div class="card-hover bg-gradient-to-br from-amber-500 to-amber-600 rounded-3xl p-6 text-white shadow-xl shadow-amber-500/20">
+                <svg class="w-8 h-8 mb-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                <h3 class="font-bold text-lg mb-1">Condición Corporal</h3>
+                <p class="text-sm text-amber-100 opacity-90">Escala visual de 1 a 5 basada en palpación de columna vertebral, costillas y espacios intercostales.</p>
+                <div class="mt-4 text-xs bg-white/20 rounded-lg px-3 py-2 font-mono">&gt;80% animales en CC 3-4 = 100 pts</div>
+            </div>
+            <div class="card-hover bg-gradient-to-br from-blue-500 to-blue-600 rounded-3xl p-6 text-white shadow-xl shadow-blue-500/20">
+                <svg class="w-8 h-8 mb-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                <h3 class="font-bold text-lg mb-1">Estrés Térmico</h3>
+                <p class="text-sm text-blue-100 opacity-90">Observación de disminución en consumo, rumia reducida, respiración acelerada y sudoración excesiva.</p>
+                <div class="mt-4 text-xs bg-white/20 rounded-lg px-3 py-2 font-mono">&lt;10% animales con signos = 100 pts</div>
+            </div>
+            <div class="card-hover bg-gradient-to-br from-purple-500 to-purple-600 rounded-3xl p-6 text-white shadow-xl shadow-purple-500/20">
+                <svg class="w-8 h-8 mb-4 opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                <h3 class="font-bold text-lg mb-1">Succión Lateral</h3>
+                <p class="text-sm text-purple-100 opacity-90">Conducta indicadora de problemas de manejo o bienestar cuando no está relacionada con la lactancia.</p>
+                <div class="mt-4 text-xs bg-white/20 rounded-lg px-3 py-2 font-mono">Detección temprana de estrés</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== ESTRUCTURA BD ==================== -->
+<section id="estructura" class="py-24 bg-gray-50 dark:bg-[#071a10]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <span class="text-primary-600 dark:text-primary-400 font-semibold text-sm uppercase tracking-wider">Arquitectura de Datos</span>
+            <h2 class="text-3xl sm:text-5xl font-black text-gray-900 dark:text-white mt-3">Estructura de la Base de Datos</h2>
+            <p class="text-gray-500 dark:text-gray-400 mt-4 max-w-2xl mx-auto">Módulos principales de MariaDB con sus tablas, relaciones y restricciones de integridad referencial.</p>
+        </div>
+        <div class="max-w-5xl mx-auto">
+            <div id="accordion" class="space-y-4"></div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== SIMULADOR ==================== -->
+<section id="simulador" class="py-24 bg-white dark:bg-agro-dark">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <span class="text-primary-600 dark:text-primary-400 font-semibold text-sm uppercase tracking-wider">Herramienta Interactiva</span>
+            <h2 class="text-3xl sm:text-5xl font-black text-gray-900 dark:text-white mt-3">Simulador de Evaluación Ovina</h2>
+            <p class="text-gray-500 dark:text-gray-400 mt-4 max-w-2xl mx-auto">Simula el cálculo del puntaje ponderado replicando la lógica de <code class="bg-primary-100 dark:bg-primary-900/40 px-2 py-0.5 rounded text-primary-700 dark:text-primary-300">sp_calcular_puntaje_evaluacion</code></p>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Configuración -->
+            <div class="lg:col-span-1">
+                <div class="bg-gray-50 dark:bg-primary-950/30 rounded-3xl p-6 border border-gray-100 dark:border-primary-800/20 sticky top-24">
+                    <h3 class="font-bold text-lg text-gray-900 dark:text-white mb-6 flex items-center space-x-2">
+                        <svg class="w-5 h-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <span>Configuración del Predio</span>
+                    </h3>
+                    <div class="space-y-5">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Raza / Tipo</label>
+                            <select id="simRaza" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-primary-800/30 bg-white dark:bg-agro-dark text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 outline-none">
+                                <option>Corriedale</option><option>Merino</option><option>Romanov</option><option>Pelibüey</option><option>Cruzado</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Sistema Productivo</label>
+                            <select id="simSistema" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-primary-800/30 bg-white dark:bg-agro-dark text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 outline-none">
+                                <option value="extensivo">Extensivo</option><option value="semi_intensivo">Semi-intensivo</option><option value="intensivo">Intensivo</option><option value="familiar">Familiar</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tipo de producción</label>
+                            <select id="simProduccion" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-primary-800/30 bg-white dark:bg-agro-dark text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 outline-none">
+                                <option>Doble propósito</option><option>Carne</option><option>Lana</option><option>Leche</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Predio (registrado en la base de datos)</label>
+                            <select id="simFinca" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-primary-800/30 bg-white dark:bg-agro-dark text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 outline-none">
+                                <option value="">Cargando predios…</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Número de ovinos</label>
+                            <input type="number" id="simAnimales" value="120" min="1" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-primary-800/30 bg-white dark:bg-agro-dark text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-primary-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Tamaño de muestra</label>
+                            <div id="simMuestra" class="px-4 py-3 bg-primary-50 dark:bg-primary-900/20 rounded-xl text-sm font-bold text-primary-700 dark:text-primary-300">20 ovinos</div>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Según Tabla 1 – metodología ICA</p>
+                        </div>
+                        <button onclick="calcularPuntaje()" class="w-full px-6 py-4 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl shadow-lg shadow-primary-600/30 transition-all flex items-center justify-center space-x-2 mt-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                            <span>Calcular Puntaje</span>
+                        </button>
+                        <button onclick="guardarEvaluacionBD()" class="w-full px-6 py-4 bg-white dark:bg-agro-dark border-2 border-primary-600 text-primary-700 dark:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 font-bold rounded-xl transition-all flex items-center justify-center space-x-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"/></svg>
+                            <span>Guardar en la Base de Datos</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- Indicadores -->
+            <div class="lg:col-span-2 space-y-8">
+                <div class="bg-gray-50 dark:bg-primary-950/30 rounded-3xl p-6 border border-gray-100 dark:border-primary-800/20">
+                    <h3 class="font-bold text-lg text-gray-900 dark:text-white mb-6 flex items-center space-x-2">
+                        <svg class="w-5 h-5 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                        <span>Indicadores por Libertad (16 muestras)</span>
+                    </h3>
+                    <div id="simLibertades" class="space-y-6"></div>
+                </div>
+                <!-- Resultado -->
+                <div id="resultadoSim" class="hidden">
+                    <div class="bg-gradient-to-br from-primary-600 to-primary-800 rounded-3xl p-8 text-white">
+                        <div class="flex items-start justify-between mb-6">
+                            <div>
+                                <h3 class="text-2xl font-black">Resultado de la Evaluación</h3>
+                                <p class="text-primary-200 text-sm mt-1" id="resFinca">—</p>
+                            </div>
+                            <div id="resClasificacion" class="px-5 py-2 rounded-full bg-white/20 text-white font-bold text-lg">—</div>
+                        </div>
+                        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6" id="resLibertades"></div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-2"><span>Puntaje Total</span><span id="resTotal" class="font-bold">0 / 100</span></div>
+                            <div class="w-full bg-white/20 rounded-full h-5"><div id="resBarra" class="bg-white rounded-full h-5 transition-all duration-1000 flex items-center justify-end pr-3" style="width:0%"><span class="text-xs font-bold text-primary-800" id="resBarraText"></span></div></div>
+                        </div>
+                        <div id="resDiagnostico" class="mt-6 p-4 bg-white/10 rounded-xl text-sm"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== DESCARGA ==================== -->
+<section id="descarga" class="py-24 bg-gray-50 dark:bg-[#071a10]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+            <span class="text-primary-600 dark:text-primary-400 font-semibold text-sm uppercase tracking-wider">Documentación</span>
+            <h2 class="text-3xl sm:text-5xl font-black text-gray-900 dark:text-white mt-3">Recursos y Descargas</h2>
+            <p class="text-gray-500 dark:text-gray-400 mt-4 max-w-2xl mx-auto">Script SQL completo y documentación técnica para desplegar el sistema.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            <div class="card-hover bg-white dark:bg-primary-950/30 rounded-3xl p-8 border border-gray-100 dark:border-primary-800/20 text-center">
+                <div class="w-16 h-16 rounded-2xl bg-primary-100 dark:bg-primary-900/40 flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-8 h-8 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                </div>
+                <h3 class="font-bold text-lg text-gray-900 dark:text-white">Script SQL MariaDB</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2 mb-6">Script completo con 23 tablas, FK, CHECK, procedimientos almacenados y datos semilla.</p>
+                <a href="/recursos/BaseDatos_ICA_Bienestar_MariaDB.sql" download class="inline-flex px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white font-semibold rounded-xl transition shadow-lg shadow-primary-600/30">Descargar SQL</a>
+            </div>
+            <div class="card-hover bg-white dark:bg-primary-950/30 rounded-3xl p-8 border border-gray-100 dark:border-primary-800/20 text-center">
+                <div class="w-16 h-16 rounded-2xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-8 h-8 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                </div>
+                <h3 class="font-bold text-lg text-gray-900 dark:text-white">Metodología ICA</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2 mb-6">Análisis completo de la Metodología de Evaluación de Bienestar Animal en Ovinos V2.0.</p>
+                <a href="/recursos/analisis-metodologia-ovinos.txt" download class="inline-flex px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition shadow-lg shadow-blue-600/30">Descargar</a>
+            </div>
+            <div class="card-hover bg-white dark:bg-primary-950/30 rounded-3xl p-8 border border-gray-100 dark:border-primary-800/20 text-center">
+                <div class="w-16 h-16 rounded-2xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mx-auto mb-6">
+                    <svg class="w-8 h-8 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                </div>
+                <h3 class="font-bold text-lg text-gray-900 dark:text-white">Arquitectura</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-2 mb-6">Estructura completa del proyecto, stack tecnológico y mapeo de requerimientos.</p>
+                <a href="/recursos/arquitectura-ica-bienestar-animal.txt" download class="inline-flex px-6 py-3 bg-amber-500 hover:bg-amber-600 text-white font-semibold rounded-xl transition shadow-lg shadow-amber-500/30">Descargar</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== FOOTER ==================== -->
+<footer class="bg-primary-950 dark:bg-black text-white py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-10">
+            <div class="md:col-span-2">
+                <div class="flex items-center space-x-3 mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    </div>
+                    <span class="font-bold text-xl">ICA Bienestar Ovino V3.0</span>
+                </div>
+                <p class="text-gray-400 text-sm leading-relaxed">Sistema de evaluación de bienestar animal ovino basado en la metodología del Instituto Colombiano Agropecuario. Validad en Cundinamarca y La Guajira.</p>
+            </div>
+            <div>
+                <h4 class="font-bold mb-4">Enlaces</h4>
+                <ul class="space-y-2 text-sm text-gray-400">
+                    <li><a href="#hero" class="hover:text-primary-400 transition">Inicio</a></li>
+                    <li><a href="#metricas" class="hover:text-primary-400 transition">Métricas</a></li>
+                    <li><a href="#estructura" class="hover:text-primary-400 transition">Base de Datos</a></li>
+                    <li><a href="#simulador" class="hover:text-primary-400 transition">Simulador</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold mb-4">Contacto</h4>
+                <ul class="space-y-2 text-sm text-gray-400">
+                    <li>contactenos@ica.gov.co</li>
+                    <li>www.ica.gov.co</li>
+                    <li>Bogotá D.C., Colombia</li>
+                </ul>
+            </div>
+        </div>
+        <div class="border-t border-primary-800 mt-10 pt-8 flex flex-col md:flex-row justify-between items-center">
+            <p class="text-gray-500 text-sm">© 2024 ICA – Instituto Colombiano Agropecuario. Todos los derechos reservados.</p>
+            <p class="text-gray-600 text-xs mt-2 md:mt-0">Metodología EBA Ovinos V2.0 · <span class="js-indicadores">31</span> indicadores · 5 libertades</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+// ===== THEME =====
+const html = document.documentElement;
+if (localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) html.classList.add('dark');
+document.getElementById('themeToggle').addEventListener('click', () => { html.classList.toggle('dark'); localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light'); });
+document.getElementById('mobileMenuBtn').addEventListener('click', () => document.getElementById('mobileMenu').classList.toggle('hidden'));
+document.querySelectorAll('#mobileMenu a').forEach(a => a.addEventListener('click', () => document.getElementById('mobileMenu').classList.add('hidden')));
+
+// ===== CONEXIÓN A LA BASE DE DATOS (API) =====
+const ESPECIE_OVINO = 1;           // id de la especie Ovino en la base de datos
+const paramCache = {};
+let dimsActuales = [];
+let metaActual = {};
+let respuestas = {};
+
+async function apiFull(path, opts) {
+    const r = await fetch(path, opts);
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok || j.ok === false) throw new Error(j.error || 'Error de red');
+    return j;
+}
+const api = (path, opts) => apiFull(path, opts).then(j => j.data);
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+// Obtiene (y cachea) la parametrización de la especie ovina desde la base de datos
+async function getParam(id) {
+    if (!paramCache[id]) paramCache[id] = await apiFull('/api/parametrizacion/' + id);
+    return paramCache[id];
+}
+
+function setEstadoBD(ok, texto) {
+    const b = document.getElementById('bdEstado');
+    if (!b) return;
+    b.className = ok
+        ? 'hidden sm:inline-flex items-center space-x-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300'
+        : 'hidden sm:inline-flex items-center space-x-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400';
+    b.innerHTML = `<span class="w-2 h-2 rounded-full ${ok ? 'bg-primary-500' : 'bg-red-500'}"></span><span>${texto}</span>`;
+}
+
+// ===== COUNTER =====
+function animarContadores() {
+    const observer = new IntersectionObserver(entries => entries.forEach(e => {
+        if (e.isIntersecting) { const el = e.target, target = +el.dataset.count || 0, step = target / 40 || 1; let cur = 0; const t = setInterval(() => { cur += step; cur >= target ? (el.textContent = target, clearInterval(t)) : el.textContent = Math.floor(cur); }, 30); observer.unobserve(el); }
+    }), { threshold: 0.5 });
+    document.querySelectorAll('[data-count]').forEach(c => observer.observe(c));
+}
+
+const LIB_COLORES = [
+    { bg: 'bg-green-50 dark:bg-green-900/20', tx: 'text-green-600 dark:text-green-400' },
+    { bg: 'bg-amber-50 dark:bg-amber-900/20', tx: 'text-amber-600 dark:text-amber-400' },
+    { bg: 'bg-blue-50 dark:bg-blue-900/20', tx: 'text-blue-600 dark:text-blue-400' },
+    { bg: 'bg-purple-50 dark:bg-purple-900/20', tx: 'text-purple-600 dark:text-purple-400' },
+    { bg: 'bg-pink-50 dark:bg-pink-900/20', tx: 'text-pink-600 dark:text-pink-400' }
+];
+
+// ===== CARGA DE DATOS REALES EN LAS MÉTRICAS =====
+async function conectarBD() {
+    try {
+        await api('/api/health');
+        setEstadoBD(true, 'BD conectada');
+
+        const d = await api('/api/dashboard');
+        const p = await getParam(ESPECIE_OVINO);
+        const meta = p.meta || {};
+        const nDims = meta.total_dimensiones || d.dimensiones;
+        const nCrit = meta.total_criterios || d.criterios;
+        const nInd = meta.total_indicadores || d.indicadores;
+
+        // Contadores del hero (tablas, libertades, criterios, indicadores, niveles ICA)
+        const counters = document.querySelectorAll('[data-count]');
+        if (counters[0]) counters[0].dataset.count = d.tablas;
+        if (counters[1]) counters[1].dataset.count = nDims;
+        if (counters[2]) counters[2].dataset.count = nCrit;
+        if (counters[3]) counters[3].dataset.count = nInd;
+        if (counters[4]) counters[4].dataset.count = 4;
+        animarContadores();
+
+        // Tarjetas de métricas
+        document.getElementById('mTablas').textContent = d.tablas;
+        document.getElementById('mLibertades').textContent = nDims;
+        document.querySelectorAll('.js-indicadores').forEach(e => e.textContent = nInd);
+
+        // Lista de libertades con sus pesos reales desde la base de datos
+        document.getElementById('listaLibertades').innerHTML = (p.data || []).map((dim, i) => {
+            const c = LIB_COLORES[i % LIB_COLORES.length];
+            return `<div class="flex items-center justify-between text-xs ${c.bg} rounded-lg px-3 py-2"><span class="font-medium text-gray-700 dark:text-gray-300">${esc(dim.nombre)}</span><span class="font-bold ${c.tx}">${Number(dim.peso)}%</span></div>`;
+        }).join('');
+
+        renderAcordeon();
+    } catch (e) {
+        setEstadoBD(false, 'BD sin conexión');
+        console.error('Error al conectar con la base de datos:', e);
+    }
+}
+
+// ===== PREDIOS (FINCAS) DESDE LA BASE DE DATOS =====
+async function cargarFincas() {
+    const sel = document.getElementById('simFinca');
+    try {
+        const fincas = await api('/api/fincas?especie_id=' + ESPECIE_OVINO);
+        sel.innerHTML = '<option value="">Sin predio (no guardar)</option>' +
+            fincas.map(f => `<option value="${f.id}">${esc(f.nombre)} — ${esc(f.municipio || '')}</option>`).join('');
+    } catch (e) {
+        sel.innerHTML = '<option value="">No se pudieron cargar los predios</option>';
+    }
+}
+
+// ===== GUARDAR EVALUACIÓN EN LA BASE DE DATOS =====
+async function guardarEvaluacionBD() {
+    const fincaId = document.getElementById('simFinca').value;
+    if (!fincaId) return alert('Selecciona un predio registrado en la base de datos para guardar la evaluación.');
+    const lista = Object.keys(respuestas).map(id => ({ indicador_id: Number(id), respuesta: String(respuestas[id]), puntaje_obtenido: respuestas[id] }));
+    if (!lista.length) return alert('Responde al menos un indicador antes de guardar.');
+    try {
+        const ev = await api('/api/evaluaciones', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ finca_id: Number(fincaId), especie_id: ESPECIE_OVINO, respuestas: lista })
+        });
+        alert(`✅ Evaluación #${ev.id} guardada en la base de datos.\nPuntaje: ${ev.puntaje_total ?? '—'} (${ev.clasificacion ?? '—'})`);
+    } catch (e) {
+        alert('Error al guardar: ' + e.message);
+    }
+}
+
+// ===== ACCORDION =====
+const dbModules = [
+    { title: 'Seguridad y Usuarios', icon: '🔐', tables: ['roles', 'usuarios'], desc: 'Gestión de roles: admin, docente, estudiante evaluador y consultor externo. Autenticación JWT con hash de contraseñas, recuperación por correo y trazabilidad de acceso.', count: 2 },
+    { title: 'Gestión de Fincas', icon: '🏡', tables: ['departamentos', 'municipios', 'sistemas_productivos', 'fincas', 'especies', 'finca_especie', 'inventario_animal'], desc: 'Registro completo de predios con ubicación geográfica (departamento → municipio → vereda), especies asociadas, inventario por grupo etario y sistema productivo (extensivo, semi-intensivo, intensivo, familiar).', count: 7 },
+    { title: 'Parametrización Jerárquica', icon: '⚙️', tables: ['versiones_parametrizacion', 'dimensiones', 'criterios', 'indicadores', 'opciones_respuesta'], desc: 'Estructura jerárquica de la especie ovina: Dimensiones (5 libertades) → Criterios (9) → Indicadores (31) → Opciones de respuesta. Cada nivel con peso ponderado CHECK(0-100) y versionamiento.', count: 5 },
+    { title: 'Evaluaciones', icon: '📋', tables: ['estados_evaluacion', 'evaluaciones', 'detalle_evaluacion', 'evidencias'], desc: 'Ciclo completo: borrador → en proceso → finalizada → validada → cerrada. Cálculo automático de puntaje, clasificación ICA y carga de evidencias (fotos, videos, documentos) a Cloud Storage.', count: 4 },
+    { title: 'Diagnóstico y Recomendaciones IA', icon: '🧠', tables: ['diagnosticos', 'recomendaciones'], desc: 'Diagnóstico automático con fortalezas, incumplimientos y alertas críticas. Recomendaciones por IA contextualizadas a especie y sistema productivo, editables por el evaluador.', count: 2 },
+    { title: 'Certificación', icon: '🏆', tables: ['certificaciones'], desc: 'Generación de certificado ICA único con vigencia anual. Envío automático por correo electrónico. Estados: vigente, vencido, revocado.', count: 1 },
+    { title: 'Auditoría y Notificaciones', icon: '📊', tables: ['auditoria', 'notificaciones'], desc: 'Trazabilidad completa de acciones CRUD con datos JSON anteriores/nuevos e IP. Notificaciones por correo y en plataforma sobre evaluaciones pendientes y aprobaciones.', count: 2 }
+];
+function renderAcordeon() {
+    const accEl = document.getElementById('accordion');
+    accEl.innerHTML = '';
+    dbModules.forEach((m, i) => {
+        accEl.innerHTML += `<div class="accordion-item bg-white dark:bg-primary-950/30 rounded-2xl border border-gray-100 dark:border-primary-800/20 overflow-hidden"><button onclick="toggleAcc(${i})" class="w-full flex items-center justify-between p-6 text-left hover:bg-gray-50 dark:hover:bg-primary-900/10 transition"><div class="flex items-center space-x-4"><span class="text-3xl">${m.icon}</span><div><h3 class="font-bold text-gray-900 dark:text-white">${m.title}</h3><p class="text-sm text-gray-500 dark:text-gray-400">${m.count} tabla${m.count > 1 ? 's' : ''}</p></div></div><svg class="arrow w-6 h-6 text-gray-400 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg></button><div class="accordion-content"><div class="px-6 pb-6"><p class="text-gray-600 dark:text-gray-300 text-sm leading-relaxed mb-4">${m.desc}</p><div class="flex flex-wrap gap-2">${m.tables.map(t => `<span class="px-3 py-1 bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 rounded-lg text-xs font-mono font-medium">${t}</span>`).join('')}</div></div></div></div>`;
+    });
+}
+function toggleAcc(i) {
+    const items = document.querySelectorAll('.accordion-item');
+    const c = items[i].querySelector('.accordion-content'), a = items[i].querySelector('.arrow');
+    const isOpen = c.classList.contains('accordion-open');
+    document.querySelectorAll('.accordion-content').forEach(x => x.classList.remove('accordion-open'));
+    document.querySelectorAll('.arrow').forEach(x => x.classList.remove('rotate-180'));
+    if (!isOpen) { c.classList.add('accordion-open'); a.classList.add('rotate-180'); }
+}
+
+// ===== SIMULADOR =====
+const dimColor = ['green', 'amber', 'blue', 'purple', 'pink'];
+const colorClasses = { green: 'bg-green-500', amber: 'bg-amber-500', blue: 'bg-blue-500', purple: 'bg-purple-500', pink: 'bg-pink-500' };
+
+function renderIndicador(ind) {
+    const ops = ind.opciones || [];
+    let control;
+    if (ops.length) {
+        // Indicadores con opciones propias en la base de datos (Excelente…Crítico)
+        control = ops.map(o => `<button onclick="setR(${ind.id}, ${Number(o.valor)}, this)" data-g="${ind.id}" class="sim-btn px-4 py-1.5 rounded-lg text-xs font-bold bg-gray-100 dark:bg-primary-900/20 text-gray-600 dark:text-gray-400 hover:bg-primary-500 hover:text-white transition">${esc(o.opcion)}</button>`).join('');
+    } else if (ind.tipo_respuesta === 'numerica') {
+        // Indicadores numéricos (p. ej. % de mortalidad) → control deslizante
+        respuestas[ind.id] = 50;
+        control = `<div class="flex items-center space-x-2">
+            <input type="range" min="0" max="100" value="50" class="w-28 accent-primary-500" oninput="setR(${ind.id}, this.value, null); this.nextElementSibling.textContent=this.value+'%'">
+            <span class="text-xs font-bold text-primary-600 dark:text-primary-400 w-10">50%</span>
+        </div>`;
+    } else {
+        // Indicadores Sí/No
+        control = `<div class="flex space-x-2">
+            <button onclick="setR(${ind.id}, 100, this)" data-g="${ind.id}" class="sim-btn px-4 py-1.5 rounded-lg text-xs font-bold bg-gray-100 dark:bg-primary-900/20 text-gray-600 dark:text-gray-400 hover:bg-green-500 hover:text-white transition">Sí</button>
+            <button onclick="setR(${ind.id}, 0, this)" data-g="${ind.id}" class="sim-btn px-4 py-1.5 rounded-lg text-xs font-bold bg-gray-100 dark:bg-primary-900/20 text-gray-600 dark:text-gray-400 hover:bg-red-500 hover:text-white transition">No</button>
+        </div>`;
+    }
+    return `<div class="flex items-center justify-between py-2 border-b border-gray-50 dark:border-primary-800/10 last:border-0 gap-3">
+        <span class="text-sm text-gray-700 dark:text-gray-300 mr-2">${esc(ind.nombre)}</span>
+        <div class="flex flex-wrap gap-2 justify-end flex-shrink-0">${control}</div>
+    </div>`;
+}
+
+function renderSim() {
+    const c = document.getElementById('simLibertades');
+    if (!dimsActuales.length) {
+        c.innerHTML = '<div class="p-6 text-sm text-gray-500 dark:text-gray-400 rounded-2xl bg-white dark:bg-agro-dark border border-gray-100 dark:border-primary-800/20">Cargando indicadores desde la base de datos…</div>';
+        return;
+    }
+    c.innerHTML = dimsActuales.map((dim, di) => {
+        const color = dimColor[di % dimColor.length];
+        const critHtml = (dim.criterios || []).map(crit => `
+            <div class="mt-3 mb-1"><p class="text-xs font-bold uppercase tracking-wide text-gray-400 dark:text-gray-500">${esc(crit.nombre)}</p></div>
+            ${(crit.indicadores || []).map(ind => renderIndicador(ind)).join('')}
+        `).join('');
+        return `<div class="rounded-2xl bg-white dark:bg-agro-dark border border-gray-100 dark:border-primary-800/20 p-5">
+            <div class="flex items-center justify-between mb-2">
+                <div class="flex items-center space-x-3">
+                    <div class="w-3 h-10 rounded-full ${colorClasses[color]}"></div>
+                    <div><h4 class="font-bold text-gray-900 dark:text-white text-sm">${esc(dim.nombre)}</h4><span class="text-xs text-gray-500">Peso: ${Number(dim.peso)}%</span></div>
+                </div>
+            </div>
+            <div class="space-y-1 ml-6">${critHtml}</div>
+        </div>`;
+    }).join('');
+}
+
+// Sample size logic
+document.getElementById('simAnimales').addEventListener('input', function() {
+    const n = +this.value;
+    let muestra = n < 10 ? n : n <= 20 ? 10 : n <= 99 ? 20 : n <= 499 ? 30 : n <= 999 ? 40 : Math.ceil(n * 0.05);
+    document.getElementById('simMuestra').textContent = muestra + ' ovinos';
+});
+
+function setR(id, valor, btn) {
+    respuestas[id] = Number(valor);
+    if (btn) {
+        document.querySelectorAll(`.sim-btn[data-g="${id}"]`).forEach(s => { s.className = 'sim-btn px-4 py-1.5 rounded-lg text-xs font-bold bg-gray-100 dark:bg-primary-900/20 text-gray-600 dark:text-gray-400 hover:bg-primary-500 hover:text-white transition'; });
+        btn.className = 'sim-btn px-4 py-1.5 rounded-lg text-xs font-bold transition bg-primary-500 text-white';
+    }
+}
+
+function calcularPuntaje() {
+    const sel = document.getElementById('simFinca');
+    const finca = (sel.selectedIndex >= 0 && sel.value) ? sel.options[sel.selectedIndex].text.split('—')[0].trim() : 'Predio sin nombre';
+    let sumaPonderada = 0, pesoTotal = 0;
+    const resultsLib = [];
+    dimsActuales.forEach(dim => {
+        let sum = 0, wsum = 0;
+        (dim.criterios || []).forEach(crit => (crit.indicadores || []).forEach(ind => {
+            const w = Number(ind.peso) || 1;
+            const val = (respuestas[ind.id] !== undefined) ? respuestas[ind.id] : 50;
+            sum += val * w; wsum += w;
+        }));
+        const avg = wsum ? sum / wsum : 0;
+        const peso = Number(dim.peso) || 0;
+        sumaPonderada += avg * peso; pesoTotal += peso;
+        resultsLib.push({ nombre: dim.nombre.replace(/^\d+\.\s*/, ''), avg, peso });
+    });
+    const totalPonderado = pesoTotal ? sumaPonderada / pesoTotal : 0;
+    const clas = totalPonderado >= 90 ? 'Excelente' : totalPonderado >= 75 ? 'Alto' : totalPonderado >= 50 ? 'Medio' : 'Bajo';
+    const clasColor = totalPonderado >= 90 ? 'bg-green-400/30 text-green-100' : totalPonderado >= 75 ? 'bg-blue-400/30 text-blue-100' : totalPonderado >= 50 ? 'bg-amber-400/30 text-amber-100' : 'bg-red-400/30 text-red-100';
+    document.getElementById('resFinca').textContent = finca;
+    document.getElementById('resClasificacion').textContent = clas;
+    document.getElementById('resClasificacion').className = `px-5 py-2 rounded-full font-bold text-lg ${clasColor}`;
+    document.getElementById('resLibertades').innerHTML = resultsLib.map(r => `<div class="bg-white/10 rounded-xl p-3 text-center"><div class="text-2xl font-black">${Math.round(r.avg)}%</div><div class="text-xs text-primary-200 mt-1 leading-tight">${r.nombre.split(',').slice(-1)[0]}</div></div>`).join('');
+    document.getElementById('resTotal').textContent = totalPonderado.toFixed(1) + ' / 100';
+    document.getElementById('resBarra').style.width = Math.max(totalPonderado, 3) + '%';
+    document.getElementById('resBarraText').textContent = totalPonderado.toFixed(1);
+    const diagnostico = totalPonderado >= 90 ? '✅ Excelente nivel de bienestar. Mantener las prácticas actuales y realizar monitoreo periódico.' :
+                        totalPonderado >= 75 ? '👍 Buen nivel de bienestar. Revisar libertades con menor puntaje y aplicar mejoras puntuales.' :
+                        totalPonderado >= 50 ? '⚠️ Nivel medio. Se requieren mejoras significativas en al menos una libertad fundamental.' :
+                        '🚨 Nivel crítico de bienestar. Intervención inmediata requerida en múltiples áreas.';
+    document.getElementById('resDiagnostico').innerHTML = `<strong>Diagnóstico:</strong> ${diagnostico}`;
+    document.getElementById('resultadoSim').classList.remove('hidden');
+    document.getElementById('resultadoSim').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// ===== INICIALIZACIÓN =====
+(async function init() {
+    conectarBD();
+    await cargarFincas();
+    try {
+        const p = await getParam(ESPECIE_OVINO);
+        dimsActuales = p.data || [];
+        metaActual = p.meta || {};
+    } catch (e) { console.error('No se pudo cargar la parametrización ovina:', e); }
+    renderSim();
+})();
+</script>
+</body>
+</html>

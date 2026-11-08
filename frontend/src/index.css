@@ -1,0 +1,75 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-cream font-sans text-ink antialiased;
+  }
+
+  ::selection {
+    @apply bg-brand-200 text-brand-900;
+  }
+}
+
+@layer components {
+  .field-label {
+    @apply mb-1.5 block text-[11px] font-bold uppercase tracking-[0.14em] text-brand-800/70;
+  }
+
+  .input-base {
+    @apply w-full rounded-xl border border-brand-900/10 bg-white px-3.5 py-2.5 text-sm text-ink shadow-sm outline-none transition placeholder:text-brand-900/35 focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 disabled:cursor-not-allowed disabled:bg-brand-50/60 disabled:text-brand-900/45;
+  }
+
+  .card-base {
+    @apply rounded-3xl border border-brand-900/[0.07] bg-white shadow-soft;
+  }
+
+  .surface-muted {
+    @apply rounded-2xl border border-brand-900/[0.06] bg-brand-50/60;
+  }
+
+  .table-head {
+    @apply bg-brand-50/80 text-[10px] font-bold uppercase tracking-[0.13em] text-brand-800/60;
+  }
+
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-500/20;
+  }
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 12mm;
+  }
+
+  body {
+    background: white !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-page {
+    box-shadow: none !important;
+    border: 0 !important;
+    margin: 0 !important;
+    max-width: none !important;
+    width: 100% !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

@@ -1,0 +1,148 @@
+================================================================================
+ANÁLISIS DE LA NORMA: METODOLOGÍA PARA EVALUAR EL BIENESTAR ANIMAL EN OVINOS
+Instituto Colombiano Agropecuario (ICA) - Versión 2.0, 2024
+================================================================================
+
+INFORMACIÓN GENERAL DEL DOCUMENTO
+--------------------------------------------------------------------------------
+- Título: Metodología para Evaluar el Bienestar Animal en Ovinos
+- Institución: Instituto Colombiano Agropecuario (ICA)
+- Versión: 2.0 (2024)
+- Páginas: 79
+- Colaboradores: AGROSAVIA, MADR, UNAGA, FEDEANCO, ASOOVINOS, cadenas regionales
+- Marco Normativo: Resolución 136 de 2020 del Ministerio de Agricultura y Desarrollo Rural
+
+CONTEXTO Y JUSTIFICACIÓN
+--------------------------------------------------------------------------------
+La metodología se fundamenta en datos censales del ICA para 2023:
+
+- Ovinos en Colombia: 1.819.247 animales (70,7% hembras, 29,3% machos)
+- Principales departamentos productores: La Guajira, Cesar, Magdalena, Boyacá,
+  Córdoba, Santander, Meta, Cundinamarca, Bolívar y Tolima
+
+La producción ovina constituye el medio de sustento de familias
+campesinas en diferentes zonas del país, con sistemas que van desde el
+pastoreo tradicional hasta la estabulación intensiva.
+
+OBJETIVO DE LA METODOLOGÍA
+--------------------------------------------------------------------------------
+Establecer indicadores basados en el animal, en los recursos y en la gestión,
+cuya evaluación integral permita determinar el estado de bienestar en sistemas
+de producción ovina, calificando y clasificando los predios a través
+de una escala de 4 categorías.
+
+ESTRUCTURA DE LA METODOLOGÍA
+--------------------------------------------------------------------------------
+La metodología se basa en las Cinco Libertades del Bienestar Animal y utiliza
+31 indicadores agrupados de la siguiente manera:
+
+1. LIBRE DE HAMBRE, SED Y DESNUTRICIÓN
+   - Acceso y disponibilidad de agua de bebida
+   - Cantidad y calidad del agua
+   - Estado y limpieza de bebederos
+   - Acceso y disponibilidad del alimento
+   - Cantidad y calidad del alimento
+   - Estado y limpieza de comederos
+   - Condición corporal (escala 1-5)
+
+2. LIBRE DE MOLESTIAS FÍSICAS Y TÉRMICAS
+   - Signos de estrés térmico
+   - Acceso a sombra en corrales y potreros
+   - Encharcamiento en corrales y potreros
+   - Espacio mínimo por animal en confinamiento
+   - Tipo, estado del piso y limpieza de corrales
+   - Condición e higiene de la cama
+   - Iluminación y ventilación en corrales
+
+3. LIBRE DE DOLOR, DE LESIÓN Y DE ENFERMEDAD
+   - Sintomatología respiratoria (secreción nasal, tos)
+   - Secreción ocular
+   - FAMACHA (evaluación de anemia)
+   - Topizado y descorne
+   - Presencia de ectoparásitos (tábano, garrapata, nuches, miasis)
+   - Lesiones, heridas, pérdida de pelo o lana
+   - Mastitis clínica
+   - Castración
+   - Descole
+   - Suciedad del tren posterior
+   - Cojeras
+   - Sobrecrecimiento de pezuñas
+   - Mortalidad
+
+4. LIBRE DE TEMOR Y ANGUSTIA
+   - Respuesta a la interacción con el humano
+   - Conocimiento y capacitación en bienestar animal
+
+5. LIBRE DE IMPEDIMENTOS DE MANIFESTAR UN COMPORTAMIENTO NATURAL
+   - Agrupamiento social
+   - Animales amarrados
+
+ESCALA DE CALIFICACIÓN
+--------------------------------------------------------------------------------
+| Categoría  | Puntuación | Descripción                    |
+|------------|------------|--------------------------------|
+| Excelente  | 100 puntos | Cumplimiento óptimo            |
+| Alto       | 55 puntos  | Cumplimiento aceptable         |
+| Medio      | 20 puntos  | Cumplimiento deficiente        |
+| Bajo       | 0 puntos   | Incumplimiento crítico         |
+
+TIPOS DE SISTEMAS PRODUCTIVOS
+--------------------------------------------------------------------------------
+| Sistema        | Características                                          |
+|----------------|----------------------------------------------------------|
+| Familiar       | Rebaños pequeños (máx. 30 animales), pastoreo con estaca |
+| Extensivo      | Hasta 300 animales, pastoreo en potreros delimitados     |
+| Semi-intensivo | Mezcla de pastoreo y estabulación nocturna              |
+| Intensivo      | Estabulación total, ordeño 1-2 veces/día                 |
+
+MÉTODOS DE EVALUACIÓN
+--------------------------------------------------------------------------------
+1. Inspección documental: Revisión de registros, procedimientos, prescripciones
+2. Inspección visual sin muestreo: Recorrido completo de las instalaciones
+3. Inspección visual con muestreo: Evaluación de una muestra representativa
+
+Tamaño de muestra mínimo:
+- Menos de 10 animales → evaluar todos
+- 11-20 animales → evaluar 10
+- 20-99 animales → evaluar 20
+- 100-499 animales → evaluar 30
+- 500-999 animales → evaluar 40
+- 1000+ animales → 5% de la población
+
+CARACTERÍSTICAS DE UN BUEN INDICADOR
+--------------------------------------------------------------------------------
+- Viabilidad: Que puede ser realizado
+- Validez: Grado en que un indicador mide realmente lo que quiere medir
+- Exactitud: Cercanía de una medida al valor real
+- Repetibilidad: Grado en que una medida proporciona resultados similares
+- Objetividad: Deja poco margen a la interpretación por parte del evaluador
+
+PROCESO DE EVALUACIÓN (4 ETAPAS)
+--------------------------------------------------------------------------------
+1. Etapa I: Reunión inicial con el productor
+2. Etapa II: Inspección del predio
+3. Etapa III: Inspección documental
+4. Etapa IV: Procesamiento de datos y entrega de resultados
+
+OBSERVACIONES IMPORTANTES
+--------------------------------------------------------------------------------
+- La versión 2.0 incluye un capítulo exclusivo para predios productivos
+  familiares (rebaños pequeños de máximo 30 animales)
+- Se enfoca en sistemas de producción de leche, carne o doble propósito
+- La metodología fue validada en predios de Cundinamarca y La Guajira
+- Prohíbe la reproducción con fines comerciales sin autorización del ICA
+- Incluye referencias a protocolos internacionales como AWIN y Welfare Quality®
+
+CONCLUSIÓN
+--------------------------------------------------------------------------------
+Esta metodología es una herramienta estructurada, objetiva y sistemática
+diseñada específicamente para el contexto colombiano. Permite evaluar el
+bienestar animal en ovinos de manera integral, combinando
+observación directa, revisión documental y entrevistas con productores. Su
+enfoque en las cinco libertades y la clasificación en cuatro niveles facilita
+la toma de decisiones y la priorización de mejoras en los sistemas
+productivos del país.
+
+================================================================================
+Fin del análisis
+================================================================================

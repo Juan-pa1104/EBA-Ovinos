@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ICA · Bienestar Animal — Sistema de Evaluación</title>
+<meta name="description" content="Sistema para evaluar el bienestar animal de ovinos bajo la metodología del ICA." />
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        colors: {
+          agro: {
+            50:'#f0fdf4',100:'#dcfce7',200:'#bbf7d0',300:'#86efac',400:'#4ade80',
+            500:'#22c55e',600:'#16a34a',700:'#15803d',800:'#166534',900:'#14532d',950:'#052e16'
+          }
+        },
+        fontFamily: { sans: ['Inter','Segoe UI','system-ui','sans-serif'] }
+      }
+    }
+  }
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', system-ui, sans-serif; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 9999px; border: 2px solid transparent; background-clip: content-box; }
+  .dark ::-webkit-scrollbar-thumb { background: #334155; background-clip: content-box; }
+  .fade-in { animation: fade .5s ease both; }
+  @keyframes fade { from { opacity:0; transform: translateY(8px);} to { opacity:1; transform:none;} }
+  .glass { backdrop-filter: blur(12px); }
+</style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 antialiased">
+
+<!-- ============ NAV ============ -->
+<header class="sticky top-0 z-50 glass bg-white/80 dark:bg-slate-950/80 border-b border-slate-200 dark:border-slate-800">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
+    <a href="#inicio" class="flex items-center gap-2 font-extrabold text-lg">
+      <span class="text-2xl">🐑</span>
+      <span class="bg-gradient-to-r from-agro-600 to-agro-400 bg-clip-text text-transparent">ICA · Bienestar Animal</span>
+    </a>
+    <nav class="hidden lg:flex items-center gap-6 text-sm font-medium">
+      <a href="#panel" class="hover:text-agro-600 dark:hover:text-agro-400 transition">Panel</a>
+      <a href="#parametrizacion" class="hover:text-agro-600 dark:hover:text-agro-400 transition">Metodología</a>
+      <a href="#simulador" class="hover:text-agro-600 dark:hover:text-agro-400 transition">Simulador</a>
+      <a href="#basedatos" class="hover:text-agro-600 dark:hover:text-agro-400 transition">Base de datos</a>
+      <a href="#fincas" class="hover:text-agro-600 dark:hover:text-agro-400 transition">Fincas</a>
+      <a href="#descargas" class="hover:text-agro-600 dark:hover:text-agro-400 transition">Descargas</a>
+    </nav>
+    <div class="flex items-center gap-3">
+      <span id="dbStatus" class="hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400">
+        <span class="w-2 h-2 rounded-full bg-slate-400 animate-pulse"></span> verificando…
+      </span>
+      <button id="themeToggle" title="Cambiar tema" class="p-2 rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 transition">
+        <svg id="iconSun" class="w-5 h-5 hidden dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M19.1 4.9l-1.4 1.4M6.3 17.7l-1.4 1.4"/></svg>
+        <svg id="iconMoon" class="w-5 h-5 block dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 sm:px-6">
+
+  <!-- ============ HERO ============ -->
+  <section id="inicio" class="pt-16 pb-14 fade-in">
+    <div class="grid lg:grid-cols-2 gap-10 items-center">
+      <div>
+        <span class="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-agro-700 dark:text-agro-400 bg-agro-100 dark:bg-agro-900/40 px-3 py-1.5 rounded-full">
+          🌱 Metodología oficial ICA
+        </span>
+        <h1 class="mt-5 text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-tight">
+          Evalúa el <span class="bg-gradient-to-r from-agro-600 to-emerald-400 bg-clip-text text-transparent">Bienestar Animal</span> con criterio científico
+        </h1>
+        <p class="mt-5 text-lg text-slate-600 dark:text-slate-400 max-w-xl">
+          Plataforma integral para la evaluación de ovinos basada en las cinco libertades,
+          nueve criterios y más de treinta indicadores, con cálculo ponderado automático y trazabilidad completa en base de datos.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href="#simulador" class="px-6 py-3 rounded-xl bg-agro-600 hover:bg-agro-700 text-white font-semibold shadow-lg shadow-agro-600/30 transition">Comenzar evaluación</a>
+          <a href="#basedatos" class="px-6 py-3 rounded-xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-agro-500 font-semibold transition">Explorar base de datos</a>
+        </div>
+        <div class="mt-8 flex flex-wrap gap-6 text-sm">
+          <div><div class="text-2xl font-extrabold text-agro-600 dark:text-agro-400" id="heroEspecies">3</div><div class="text-slate-500">Especies</div></div>
+          <div class="w-px bg-slate-200 dark:bg-slate-800"></div>
+          <div><div class="text-2xl font-extrabold text-agro-600 dark:text-agro-400" id="heroIndicadores">—</div><div class="text-slate-500">Indicadores</div></div>
+          <div class="w-px bg-slate-200 dark:bg-slate-800"></div>
+          <div><div class="text-2xl font-extrabold text-agro-600 dark:text-agro-400" id="heroTablas">—</div><div class="text-slate-500">Tablas BD</div></div>
+        </div>
+      </div>
+      <div class="relative">
+        <div class="absolute -inset-4 bg-gradient-to-tr from-agro-500/20 to-emerald-400/20 blur-3xl rounded-full"></div>
+        <img src="https://images.unsplash.com/photo-1484557985045-edf25e08da73?auto=format&fit=crop&w=900&q=80"
+             alt="Ovejas en pastoreo" class="relative rounded-3xl shadow-2xl w-full h-80 object-cover border border-white/40 dark:border-slate-800" />
+        <div class="relative -mt-8 ml-6 mr-6 grid grid-cols-4 gap-2 bg-white dark:bg-slate-900 rounded-2xl shadow-xl p-4 border border-slate-100 dark:border-slate-800">
+          <div class="text-center"><div class="text-xl">🥤</div><div class="text-[11px] text-slate-500 mt-1 leading-tight">Hambre y sed</div></div>
+          <div class="text-center"><div class="text-xl">🌡️</div><div class="text-[11px] text-slate-500 mt-1 leading-tight">Molestias</div></div>
+          <div class="text-center"><div class="text-xl">🩺</div><div class="text-[11px] text-slate-500 mt-1 leading-tight">Salud</div></div>
+          <div class="text-center"><div class="text-xl">🧠</div><div class="text-[11px] text-slate-500 mt-1 leading-tight">Temor</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PANEL / MÉTRICAS ============ -->
+  <section id="panel" class="py-14 border-t border-slate-200 dark:border-slate-800">
+    <div class="flex items-end justify-between mb-8">
+      <div>
+        <h2 class="text-3xl font-extrabold">Panel de control</h2>
+        <p class="text-slate-500 dark:text-slate-400 mt-1">Métricas en tiempo real leídas directamente de la base de datos.</p>
+      </div>
+      <button onclick="cargarDashboard()" class="text-sm font-semibold text-agro-600 dark:text-agro-400 hover:underline">↻ Actualizar</button>
+    </div>
+    <div id="metricas" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4"></div>
+
+    <div class="grid md:grid-cols-2 gap-6 mt-6">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
+        <h3 class="font-bold mb-4">Evaluaciones por especie</h3>
+        <div id="chartEspecie" class="space-y-3 text-sm"></div>
+      </div>
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
+        <h3 class="font-bold mb-4">Distribución por clasificación</h3>
+        <div id="chartClasif" class="space-y-3 text-sm"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PARAMETRIZACIÓN ============ -->
+  <section id="parametrizacion" class="py-14 border-t border-slate-200 dark:border-slate-800">
+    <h2 class="text-3xl font-extrabold">Estructura de la metodología</h2>
+    <p class="text-slate-500 dark:text-slate-400 mt-1 mb-6">Pesos y jerarquía tomados de la parametrización almacenada en la base de datos.</p>
+    <div id="tabsEspecie" class="flex flex-wrap gap-2 mb-6"></div>
+    <div id="acordeon" class="space-y-3"></div>
+  </section>
+
+  <!-- ============ SIMULADOR ============ -->
+  <section id="simulador" class="py-14 border-t border-slate-200 dark:border-slate-800">
+    <h2 class="text-3xl font-extrabold">Simulador de evaluación</h2>
+    <p class="text-slate-500 dark:text-slate-400 mt-1 mb-6">Registra tus respuestas y el sistema calculará el puntaje ponderado.</p>
+
+    <div class="grid lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-2 space-y-4">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 grid sm:grid-cols-2 gap-4">
+          <label class="block">
+            <span class="text-sm font-semibold">Especie</span>
+            <select id="simEspecie" class="mt-1 w-full rounded-lg border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2"></select>
+          </label>
+          <label class="block">
+            <span class="text-sm font-semibold">Finca (opcional, para guardar)</span>
+            <select id="simFinca" class="mt-1 w-full rounded-lg border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2"></select>
+          </label>
+        </div>
+        <div id="simIndicadores" class="space-y-4"></div>
+        <div class="flex flex-wrap gap-3">
+          <button onclick="calcularSimulador()" class="px-6 py-3 rounded-xl bg-agro-600 hover:bg-agro-700 text-white font-semibold shadow-lg shadow-agro-600/30 transition">Calcular puntaje</button>
+          <button onclick="guardarEvaluacion()" class="px-6 py-3 rounded-xl bg-slate-800 dark:bg-slate-700 hover:bg-slate-900 dark:hover:bg-slate-600 text-white font-semibold transition">Guardar en base de datos</button>
+          <button onclick="cargarSimulador()" class="px-6 py-3 rounded-xl border border-slate-300 dark:border-slate-700 font-semibold hover:border-agro-500 transition">Reiniciar</button>
+        </div>
+      </div>
+
+      <aside class="lg:col-span-1">
+        <div class="sticky top-24 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6">
+          <h3 class="font-bold mb-4">Resultado</h3>
+          <div class="relative w-40 h-40 mx-auto">
+            <svg viewBox="0 0 120 120" class="w-40 h-40 -rotate-90">
+              <circle cx="60" cy="60" r="52" fill="none" stroke="currentColor" class="text-slate-200 dark:text-slate-800" stroke-width="12"/>
+              <circle id="gaugeArc" cx="60" cy="60" r="52" fill="none" stroke="#16a34a" stroke-width="12" stroke-linecap="round"
+                      stroke-dasharray="327" stroke-dashoffset="327" style="transition: stroke-dashoffset .8s ease"/>
+            </svg>
+            <div class="absolute inset-0 flex flex-col items-center justify-center">
+              <span id="gaugeValor" class="text-4xl font-extrabold">0</span>
+              <span id="gaugeClasif" class="text-xs font-semibold uppercase tracking-wide text-slate-500">sin evaluar</span>
+            </div>
+          </div>
+          <div id="resumenDimensiones" class="mt-6 space-y-3 text-sm"></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============ BASE DE DATOS ============ -->
+  <section id="basedatos" class="py-14 border-t border-slate-200 dark:border-slate-800">
+    <div class="flex items-end justify-between mb-6">
+      <div>
+        <h2 class="text-3xl font-extrabold">Explorador de base de datos</h2>
+        <p class="text-slate-500 dark:text-slate-400 mt-1">Consulta en vivo de <code class="text-agro-600 dark:text-agro-400">ica_bienestar_animal</code> (solo lectura).</p>
+      </div>
+      <button onclick="cargarTablas()" class="text-sm font-semibold text-agro-600 dark:text-agro-400 hover:underline">↻ Recargar</button>
+    </div>
+    <div class="grid lg:grid-cols-[320px_1fr] gap-6">
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+        <div class="px-4 py-3 border-b border-slate-200 dark:border-slate-800 text-sm font-semibold">Tablas y vistas</div>
+        <div id="listaTablas" class="max-h-[560px] overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800"></div>
+      </div>
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden">
+        <div id="tablaHeader" class="px-4 py-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between gap-3">
+          <span class="text-sm font-semibold text-slate-500">Selecciona una tabla…</span>
+        </div>
+        <div id="tablaContenido" class="overflow-auto max-h-[560px]">
+          <div class="p-10 text-center text-slate-400 text-sm">Haz clic en una tabla de la izquierda para ver sus registros.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FINCAS ============ -->
+  <section id="fincas" class="py-14 border-t border-slate-200 dark:border-slate-800">
+    <h2 class="text-3xl font-extrabold">Fincas registradas</h2>
+    <p class="text-slate-500 dark:text-slate-400 mt-1 mb-6">Registra predios para asociarlos a las evaluaciones.</p>
+
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 mb-6">
+      <h3 class="font-bold mb-4">Nueva finca</h3>
+      <form id="formFinca" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <input name="nombre" required placeholder="Nombre de la finca *" class="rounded-lg border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-sm"/>
+        <input name="propietario" required placeholder="Propietario *" class="rounded-lg border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-sm"/>
+        <select name="departamento_id" required id="fincaDepto" class="rounded-lg border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-sm"></select>
+        <select name="municipio_id" required id="fincaMuni" class="rounded-lg border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-sm"></select>
+        <select name="sistema_productivo_id" required id="fincaSistema" class="rounded-lg border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-sm"></select>
+        <input name="vereda" placeholder="Vereda" class="rounded-lg border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-sm"/>
+        <select name="especie" id="fincaEspecie" class="rounded-lg border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-sm"></select>
+        <button class="rounded-lg bg-agro-600 hover:bg-agro-700 text-white font-semibold px-4 py-2 text-sm transition">Registrar finca</button>
+      </form>
+    </div>
+
+    <div id="listaFincas" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+  </section>
+
+  <!-- ============ DESCARGAS ============ -->
+  <section id="descargas" class="py-14 border-t border-slate-200 dark:border-slate-800">
+    <h2 class="text-3xl font-extrabold">Recursos y descargas</h2>
+    <p class="text-slate-500 dark:text-slate-400 mt-1 mb-6">Documentación técnica y scripts del proyecto.</p>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      <a href="/recursos/BaseDatos_ICA_Bienestar_MariaDB.sql" download class="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 hover:border-agro-500 transition">
+        <div class="text-3xl mb-3">🗄️</div>
+        <h3 class="font-bold group-hover:text-agro-600 dark:group-hover:text-agro-400">Script SQL completo</h3>
+        <p class="text-sm text-slate-500 mt-1">Esquema, procedimientos almacenados y datos base (MariaDB / MySQL).</p>
+      </a>
+      <a href="/recursos/arquitectura-ica-bienestar-animal.txt" download class="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 hover:border-agro-500 transition">
+        <div class="text-3xl mb-3">🏗️</div>
+        <h3 class="font-bold group-hover:text-agro-600 dark:group-hover:text-agro-400">Arquitectura del sistema</h3>
+        <p class="text-sm text-slate-500 mt-1">Diseño de componentes, tecnologías y mapeo de requerimientos.</p>
+      </a>
+      <a href="/recursos/analisis-metodologia-ovinos.txt" download class="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 hover:border-agro-500 transition">
+        <div class="text-3xl mb-3">📘</div>
+        <h3 class="font-bold group-hover:text-agro-600 dark:group-hover:text-agro-400">Análisis de la metodología</h3>
+        <p class="text-sm text-slate-500 mt-1">Resumen técnico de las cinco libertades, criterios e indicadores.</p>
+      </a>
+    </div>
+  </section>
+</main>
+
+<footer class="border-t border-slate-200 dark:border-slate-800 mt-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-sm text-slate-500">
+    <p>🌱 Sistema ICA · Bienestar Animal — Ovinos</p>
+    <p>Backend Node.js · Express · MySQL</p>
+  </div>
+</footer>
+
+<!-- Toast -->
+<div id="toast" class="fixed bottom-6 right-6 z-[60] hidden max-w-sm"></div>
+
+<script>
+// ============================================================
+// UTILIDADES
+// ============================================================
+const $ = (s) => document.querySelector(s);
+const el = (t, c, h) => { const e = document.createElement(t); if (c) e.className = c; if (h !== undefined) e.innerHTML = h; return e; };
+
+async function api(path, opts) {
+  const res = await fetch(path, opts);
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok || json.ok === false) throw new Error(json.error || 'Error de red');
+  return json.data;
+}
+function toast(msg, tipo = 'ok') {
+  const t = $('#toast');
+  const colores = tipo === 'ok' ? 'bg-agro-600' : 'bg-red-600';
+  t.innerHTML = `<div class="${colores} text-white px-5 py-3 rounded-xl shadow-2xl text-sm font-medium fade-in">${msg}</div>`;
+  t.classList.remove('hidden');
+  clearTimeout(window._toast);
+  window._toast = setTimeout(() => t.classList.add('hidden'), 3500);
+}
+const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+// ============================================================
+// TEMA
+// ============================================================
+$('#themeToggle').addEventListener('click', () => {
+  document.documentElement.classList.toggle('dark');
+  localStorage.setItem('tema', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+});
+if (localStorage.getItem('tema') === 'light') document.documentElement.classList.remove('dark');
+
+// ============================================================
+// ESTADO
+// ============================================================
+const estado = { especies: [], parametrizaciones: {}, tablas: [], respuestas: {}, valores: {} };
+
+// ============================================================
+// ESTADO DE CONEXIÓN
+// ============================================================
+async function verificarConexion() {
+  const badge = $('#dbStatus');
+  try {
+    const h = await api('/api/health');
+    badge.className = 'hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-agro-100 dark:bg-agro-900/40 text-agro-700 dark:text-agro-400';
+    badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-agro-500"></span> BD conectada';
+  } catch {
+    badge.className = 'hidden sm:inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400';
+    badge.innerHTML = '<span class="w-2 h-2 rounded-full bg-red-500"></span> BD sin conexión';
+  }
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+async function cargarDashboard() {
+  try {
+    const d = await api('/api/dashboard');
+    $('#heroTablas').textContent = d.tablas;
+    $('#heroIndicadores').textContent = d.indicadores;
+    $('#heroEspecies').textContent = d.especies;
+
+    const cards = [
+      ['Tablas en BD', d.tablas, '🗄️'],
+      ['Especies', d.especies, '🐑'],
+      ['Libertades', d.dimensiones, '🕊️'],
+      ['Criterios', d.criterios, '📋'],
+      ['Indicadores', d.indicadores, '🔎'],
+      ['Fincas', d.fincas, '🏡'],
+    ];
+    $('#metricas').innerHTML = cards.map(([t, v, i]) => `
+      <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5">
+        <div class="text-2xl mb-1">${i}</div>
+        <div class="text-3xl font-extrabold text-agro-600 dark:text-agro-400">${v}</div>
+        <div class="text-xs text-slate-500 mt-1">${t}</div>
+      </div>`).join('');
+
+    const maxEsp = Math.max(1, ...d.por_especie.map(x => x.evaluaciones));
+    $('#chartEspecie').innerHTML = d.por_especie.map(x => `
+      <div>
+        <div class="flex justify-between mb-1"><span class="font-medium">${esc(x.especie)}</span>
+        <span class="text-slate-500">${x.evaluaciones} eval · ${x.promedio ?? '—'} pts</span></div>
+        <div class="h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+          <div class="h-full bg-agro-500" style="width:${(x.evaluaciones / maxEsp) * 100}%"></div>
+        </div>
+      </div>`).join('') || '<p class="text-slate-400 text-sm">Sin evaluaciones registradas.</p>';
+
+    const colores = { excelente: 'bg-agro-600', alto: 'bg-agro-400', medio: 'bg-amber-400', bajo: 'bg-red-500' };
+    const maxCl = Math.max(1, ...d.por_clasificacion.map(x => x.total));
+    $('#chartClasif').innerHTML = d.por_clasificacion.length ? d.por_clasificacion.map(x => `
+      <div>
+        <div class="flex justify-between mb-1"><span class="font-medium capitalize">${esc(x.clasificacion)}</span><span class="text-slate-500">${x.total}</span></div>
+        <div class="h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+          <div class="h-full ${colores[x.clasificacion] || 'bg-slate-400'}" style="width:${(x.total / maxCl) * 100}%"></div>
+        </div>
+      </div>`).join('') : '<p class="text-slate-400 text-sm">Sin evaluaciones clasificadas.</p>';
+  } catch (e) { toast('No se pudo cargar el panel: ' + e.message, 'error'); }
+}
+
+// ============================================================
+// PARAMETRIZACIÓN
+// ============================================================
+async function cargarEspecies() {
+  estado.especies = await api('/api/especies');
+  const opts = estado.especies.map(e => `<option value="${e.id}">${esc(e.nombre)}</option>`).join('');
+  $('#simEspecie').innerHTML = opts;
+  $('#fincaEspecie').innerHTML = opts;
+  $('#tabsEspecie').innerHTML = estado.especies.map((e, i) =>
+    `<button data-especie="${e.id}" class="tab-especie px-4 py-2 rounded-xl text-sm font-semibold border transition ${i === 0 ? 'bg-agro-600 text-white border-agro-600' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 hover:border-agro-500'}">${esc(e.nombre)}</button>`
+  ).join('');
+  document.querySelectorAll('.tab-especie').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.tab-especie').forEach(x => x.className = x.className.replace(/bg-agro-600 text-white border-agro-600/, 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 hover:border-agro-500'));
+    b.className = b.className.replace(/bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 hover:border-agro-500/, 'bg-agro-600 text-white border-agro-600');
+    renderAcordeon(b.dataset.especie);
+  }));
+}
+
+async function getParametrizacion(especieId) {
+  if (!estado.parametrizaciones[especieId]) {
+    estado.parametrizaciones[especieId] = await api('/api/parametrizacion/' + especieId);
+  }
+  return estado.parametrizaciones[especieId];
+}
+
+async function renderAcordeon(especieId) {
+  const cont = $('#acordeon');
+  cont.innerHTML = '<p class="text-slate-400 text-sm">Cargando…</p>';
+  const jer = await getParametrizacion(especieId);
+  cont.innerHTML = jer.map((d, i) => `
+    <details class="group bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 overflow-hidden" ${i === 0 ? 'open' : ''}>
+      <summary class="cursor-pointer list-none px-5 py-4 flex items-center justify-between gap-4 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+        <div class="flex items-center gap-3">
+          <span class="w-9 h-9 rounded-xl bg-agro-100 dark:bg-agro-900/40 text-agro-700 dark:text-agro-400 grid place-items-center font-bold">${i + 1}</span>
+          <div><div class="font-bold">${esc(d.nombre)}</div><div class="text-xs text-slate-500">${d.criterios.length} criterios · ${d.criterios.reduce((a, c) => a + c.indicadores.length, 0)} indicadores</div></div>
+        </div>
+        <span class="text-sm font-bold text-agro-600 dark:text-agro-400 whitespace-nowrap">peso ${d.peso}%</span>
+      </summary>
+      <div class="px-5 pb-5 space-y-4">
+        ${d.criterios.map(c => `
+          <div class="border-l-2 border-agro-200 dark:border-agro-800 pl-4">
+            <div class="flex items-center justify-between gap-3 mb-2">
+              <span class="font-semibold text-sm">${esc(c.nombre)}</span>
+              <span class="text-xs text-slate-500">criterio ${c.peso}%</span>
+            </div>
+            <ul class="space-y-1.5">
+              ${c.indicadores.map(ind => `
+                <li class="flex items-start justify-between gap-3 text-sm bg-slate-50 dark:bg-slate-800/50 rounded-lg px-3 py-2">
+                  <span>${esc(ind.nombre)}<span class="block text-[11px] text-slate-400">${esc(ind.metodo_evaluacion)} · ${esc(ind.tipo_respuesta)}</span></span>
+                  <span class="text-[11px] font-semibold text-agro-600 dark:text-agro-400 whitespace-nowrap">peso ${ind.peso}%</span>
+                </li>`).join('')}
+            </ul>
+          </div>`).join('')}
+      </div>
+    </details>`).join('');
+}
+
+// ============================================================
+// SIMULADOR
+// ============================================================
+async function cargarSimulador() {
+  const especieId = $('#simEspecie').value;
+  const cont = $('#simIndicadores');
+  cont.innerHTML = '<p class="text-slate-400 text-sm">Cargando indicadores…</p>';
+  const jer = await getParametrizacion(especieId);
+  estado.respuestas = {};
+  estado.valores = {};
+
+  cont.innerHTML = jer.map((d, di) => `
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-bold">${esc(d.nombre)}</h3>
+        <span class="text-xs font-bold text-agro-600 dark:text-agro-400">${d.peso}%</span>
+      </div>
+      ${d.criterios.map(c => `
+        <div class="mb-4 last:mb-0">
+          <p class="text-sm font-semibold text-slate-500 mb-2">${esc(c.nombre)} <span class="text-[11px]">(${c.peso}%)</span></p>
+          <div class="grid sm:grid-cols-2 gap-3">
+            ${c.indicadores.map(ind => renderCampo(d, c, ind)).join('')}
+          </div>
+        </div>`).join('')}
+    </div>`).join('');
+
+  cont.querySelectorAll('[data-ind]').forEach(inp => inp.addEventListener('change', () => {
+    estado.respuestas[inp.dataset.ind] = { respuesta: inp.value, ...indMeta(inp.dataset.ind) };
+  }));
+  actualizarGauge(0, null);
+  $('#resumenDimensiones').innerHTML = '';
+}
+
+function indMeta(indicadorId) {
+  for (const d of Object.values(estado.parametrizaciones).flat()) {
+    for (const c of d.criterios) for (const i of c.indicadores) if (String(i.id) === String(indicadorId)) return { dimension: d.nombre, dimension_peso: Number(d.peso), criterio_peso: Number(c.peso), indicador_peso: Number(i.peso), tipo: i.tipo_respuesta };
+  }
+  return {};
+}
+
+function renderCampo(d, c, ind) {
+  const id = ind.id;
+  let campo;
+  if (ind.tipo_respuesta === 'si_no') {
+    campo = `<select data-ind="${id}" class="w-full mt-1 rounded-lg border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-sm">
+      <option value="">— seleccionar —</option><option value="100">Sí / Cumple</option><option value="0">No / No cumple</option></select>`;
+  } else if (ind.opciones && ind.opciones.length) {
+    campo = `<select data-ind="${id}" class="w-full mt-1 rounded-lg border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-sm">
+      <option value="">— seleccionar —</option>${ind.opciones.map(o => `<option value="${o.valor}">${esc(o.opcion)}</option>`).join('')}</select>`;
+  } else {
+    campo = `<input data-ind="${id}" type="number" min="0" max="100" placeholder="0 – 100" class="w-full mt-1 rounded-lg border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 px-3 py-2 text-sm"/>`;
+  }
+  return `<label class="block">${campo}<span class="block text-[11px] text-slate-500 mt-1">${esc(ind.nombre)} · ${ind.peso}%</span></label>`;
+}
+
+function calcularSimulador() {
+  let total = 0, respondidos = 0, posibles = 0;
+  const porDimension = {};
+  document.querySelectorAll('#simIndicadores [data-ind]').forEach(inp => {
+    const meta = indMeta(inp.dataset.ind);
+    posibles++;
+    const dim = meta.dimension || 'Sin dimensión';
+    porDimension[dim] = porDimension[dim] || { suma: 0, pesoDim: meta.dimension_peso || 0, n: 0 };
+    if (inp.value === '' || inp.value === null) return;
+    const pts = Number(inp.value);
+    if (isNaN(pts)) return;
+    respondidos++;
+    const aporte = pts * (meta.dimension_peso / 100) * (meta.criterio_peso / 100) * (meta.indicador_peso / 100);
+    total += aporte;
+    porDimension[dim].suma += aporte;
+    porDimension[dim].n++;
+  });
+  if (respondidos === 0) return toast('Responde al menos un indicador', 'error');
+
+  const clasif = total >= 90 ? 'excelente' : total >= 75 ? 'alto' : total >= 50 ? 'medio' : 'bajo';
+  actualizarGauge(total, clasif);
+
+  $('#resumenDimensiones').innerHTML = Object.entries(porDimension).map(([dim, v]) => {
+    const pct = Math.min(100, v.suma);
+    return `<div>
+      <div class="flex justify-between mb-1"><span class="text-xs font-medium">${esc(dim)}</span><span class="text-xs text-slate-500">${pct.toFixed(1)} / ${v.pesoDim}</span></div>
+      <div class="h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden"><div class="h-full bg-agro-500" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join('');
+  toast(`Puntaje calculado: ${total.toFixed(1)} (${clasif})`);
+  estado.ultimoPuntaje = total;
+}
+
+function actualizarGauge(valor, clasif) {
+  const v = Math.max(0, Math.min(100, valor));
+  $('#gaugeArc').style.strokeDashoffset = 327 - (327 * v / 100);
+  const colores = { excelente: '#16a34a', alto: '#4ade80', medio: '#facc15', bajo: '#ef4444' };
+  $('#gaugeArc').setAttribute('stroke', clasif ? colores[clasif] : '#16a34a');
+  $('#gaugeValor').textContent = v.toFixed(0);
+  $('#gaugeClasif').textContent = clasif || 'sin evaluar';
+}
+
+async function guardarEvaluacion() {
+  const finca_id = $('#simFinca').value;
+  if (!finca_id) return toast('Selecciona una finca para guardar', 'error');
+  const respuestas = [];
+  document.querySelectorAll('#simIndicadores [data-ind]').forEach(inp => {
+    if (inp.value !== '') respuestas.push({ indicador_id: Number(inp.dataset.ind), respuesta: inp.value, puntaje_obtenido: Number(inp.value) });
+  });
+  if (!respuestas.length) return toast('Responde al menos un indicador', 'error');
+  try {
+    const ev = await api('/api/evaluaciones', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ finca_id, especie_id: Number($('#simEspecie').value), respuestas })
+    });
+    toast(`Evaluación #${ev.id} guardada · puntaje ${ev.puntaje_total ?? '—'}`);
+    cargarDashboard();
+  } catch (e) { toast('Error al guardar: ' + e.message, 'error'); }
+}
+
+// ============================================================
+// EXPLORADOR DE BASE DE DATOS
+// ============================================================
+async function cargarTablas() {
+  const cont = $('#listaTablas');
+  cont.innerHTML = '<p class="p-4 text-slate-400 text-sm">Cargando…</p>';
+  try {
+    estado.tablas = await api('/api/tablas');
+    cont.innerHTML = estado.tablas.map(t => `
+      <button data-tabla="${esc(t.nombre)}" class="w-full text-left px-4 py-2.5 hover:bg-agro-50 dark:hover:bg-agro-900/20 transition flex items-center justify-between gap-2">
+        <span class="text-sm font-medium ${t.tipo === 'VIEW' ? 'text-sky-600 dark:text-sky-400' : ''}">${t.tipo === 'VIEW' ? '👁 ' : ''}${esc(t.nombre)}</span>
+        <span class="text-[11px] text-slate-400">${t.filas} filas</span>
+      </button>`).join('');
+    cont.querySelectorAll('[data-tabla]').forEach(b => b.addEventListener('click', () => verTabla(b.dataset.tabla)));
+  } catch (e) { cont.innerHTML = `<p class="p-4 text-red-500 text-sm">${esc(e.message)}</p>`; }
+}
+
+async function verTabla(nombre, offset = 0) {
+  const header = $('#tablaHeader');
+  const cont = $('#tablaContenido');
+  header.innerHTML = `<span class="text-sm font-semibold">${esc(nombre)}</span><span class="text-xs text-slate-400">cargando…</span>`;
+  cont.innerHTML = '<div class="p-10 text-center text-slate-400 text-sm">Cargando datos…</div>';
+  try {
+    const d = await api(`/api/tablas/${encodeURIComponent(nombre)}?limit=50&offset=${offset}`);
+    header.innerHTML = `
+      <span class="text-sm font-semibold">${esc(d.tabla)} <span class="text-xs font-normal text-slate-400">(${d.columnas.length} columnas · ${d.total} filas)</span></span>
+      <span class="flex items-center gap-2">
+        <button ${offset <= 0 ? 'disabled' : ''} onclick="verTabla('${esc(d.tabla)}', ${Math.max(0, offset - 50)})" class="px-3 py-1 rounded-lg text-xs font-semibold border border-slate-200 dark:border-slate-700 disabled:opacity-40">‹ Anterior</button>
+        <span class="text-xs text-slate-400">${offset + 1}–${Math.min(offset + 50, d.total)}</span>
+        <button ${offset + 50 >= d.total ? 'disabled' : ''} onclick="verTabla('${esc(d.tabla)}', ${offset + 50})" class="px-3 py-1 rounded-lg text-xs font-semibold border border-slate-200 dark:border-slate-700 disabled:opacity-40">Siguiente ›</button>
+      </span>`;
+
+    if (!d.filas.length) { cont.innerHTML = '<div class="p-10 text-center text-slate-400 text-sm">La tabla no tiene registros.</div>'; return; }
+    const cols = d.columnas.map(c => c.columna);
+    cont.innerHTML = `<table class="w-full text-xs">
+      <thead class="sticky top-0 bg-slate-100 dark:bg-slate-800">
+        <tr>${d.columnas.map(c => `<th class="text-left px-3 py-2 font-semibold whitespace-nowrap">${c.llave === 'PRI' ? '🔑 ' : ''}${esc(c.columna)}<span class="block text-[10px] font-normal text-slate-400">${esc(c.tipo)}</span></th>`).join('')}</tr>
+      </thead>
+      <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+        ${d.filas.map(f => `<tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40">
+          ${cols.map(c => `<td class="px-3 py-2 align-top max-w-[280px] truncate" title="${esc(f[c])}">${f[c] === null ? '<span class="text-slate-400">NULL</span>' : esc(f[c])}</td>`).join('')}
+        </tr>`).join('')}
+      </tbody></table>`;
+  } catch (e) { cont.innerHTML = `<div class="p-10 text-center text-red-500 text-sm">${esc(e.message)}</div>`; }
+}
+
+// ============================================================
+// FINCAS
+// ============================================================
+async function cargarCatalogos() {
+  const [deptos, sistemas] = await Promise.all([api('/api/departamentos'), api('/api/sistemas-productivos')]);
+  $('#fincaDepto').innerHTML = '<option value="">Departamento *</option>' + deptos.map(d => `<option value="${d.id}">${esc(d.nombre)}</option>`).join('');
+  $('#fincaSistema').innerHTML = '<option value="">Sistema productivo *</option>' + sistemas.map(s => `<option value="${s.id}">${esc(s.nombre)}</option>`).join('');
+  $('#fincaDepto').addEventListener('change', async (e) => {
+    const munis = e.target.value ? await api('/api/municipios?departamento_id=' + e.target.value) : [];
+    $('#fincaMuni').innerHTML = '<option value="">Municipio *</option>' + munis.map(m => `<option value="${m.id}">${esc(m.nombre)}</option>`).join('');
+  });
+}
+
+async function cargarFincas() {
+  const fincas = await api('/api/fincas');
+  const cont = $('#listaFincas');
+  if (!fincas.length) { cont.innerHTML = '<p class="text-slate-400 text-sm">Aún no hay fincas registradas.</p>'; }
+  else cont.innerHTML = fincas.map(f => `
+    <div class="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5">
+      <div class="flex items-start justify-between gap-2">
+        <h3 class="font-bold">🏡 ${esc(f.nombre)}</h3>
+        <span class="text-[11px] px-2 py-0.5 rounded-full bg-agro-100 dark:bg-agro-900/40 text-agro-700 dark:text-agro-400 font-semibold">${esc(f.sistema_productivo)}</span>
+      </div>
+      <p class="text-sm text-slate-500 mt-1">${esc(f.propietario)}</p>
+      <p class="text-xs text-slate-400 mt-1">${esc(f.municipio)}, ${esc(f.departamento)}</p>
+    </div>`).join('');
+
+  // Refrescar selector del simulador
+  const sel = $('#simFinca');
+  sel.innerHTML = '<option value="">Sin finca (no guardar)</option>' + fincas.map(f => `<option value="${f.id}">${esc(f.nombre)}</option>`).join('');
+}
+
+$('#formFinca').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const body = Object.fromEntries(fd.entries());
+  const especie = body.especie ? [Number(body.especie)] : [];
+  delete body.especie;
+  try {
+    await api('/api/fincas', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...body, especies: especie }) });
+    toast('Finca registrada correctamente');
+    e.target.reset();
+    $('#fincaMuni').innerHTML = '<option value="">Municipio *</option>';
+    cargarFincas(); cargarDashboard();
+  } catch (err) { toast('Error: ' + err.message, 'error'); }
+});
+
+// ============================================================
+// INICIALIZACIÓN
+// ============================================================
+(async function init() {
+  verificarConexion();
+  try {
+    await Promise.all([cargarDashboard(), cargarEspecies(), cargarCatalogos(), cargarTablas(), cargarFincas()]);
+    await renderAcordeon(estado.especies[0]?.id);
+    await cargarSimulador();
+    $('#simEspecie').addEventListener('change', cargarSimulador);
+  } catch (e) {
+    toast('Error al inicializar: ' + e.message, 'error');
+  }
+})();
+</script>
+</body>
+</html>
