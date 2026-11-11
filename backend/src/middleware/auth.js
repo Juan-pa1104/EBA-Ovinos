@@ -1,6 +1,11 @@
+import 'dotenv/config';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'eba_super_secreto_cambiar_en_produccion';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET || JWT_SECRET.length < 32) {
+  console.error('JWT_SECRET requerido o inválido');
+  process.exit(1);
+}
 
 export function autenticar(req, res, next) {
   const authHeader = req.headers.authorization;

@@ -16,6 +16,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { cn } from '../lib/format';
 import { Avatar } from './ui';
+import { AsistenteChat } from './AsistenteChat';
 
 const ETIQUETA_ROL: Record<string, string> = {
   ADMIN: 'Administrador',
@@ -236,6 +237,8 @@ export function Layout() {
           <Outlet />
         </main>
       </div>
+
+      <AsistenteChat />
 
       {/* Navegación inferior móvil */}
       <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-brand-900/[0.08] bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden">

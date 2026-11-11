@@ -48,7 +48,7 @@ function puedeVerEvaluacion(usuario, detalle) {
 /**
  * Construye el detalle completo de una evaluación con su resumen y plan de mejora.
  */
-async function construirDetalle(evaluacionId) {
+export async function construirDetalle(evaluacionId) {
   const [evaluaciones] = await pool.query('SELECT * FROM evaluaciones WHERE id = ? LIMIT 1', [
     evaluacionId,
   ]);

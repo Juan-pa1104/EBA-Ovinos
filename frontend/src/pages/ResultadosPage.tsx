@@ -197,7 +197,6 @@ export function ResultadosPage() {
         `/evaluaciones/${id}/recomendaciones-ia`,
       );
       setRecomendacionIA(respuesta.recomendacion ?? null);
-      setAbiertoIA(Boolean(respuesta.recomendacion));
     } catch (err) {
       setErrorIA(mensajeDeError(err));
     } finally {

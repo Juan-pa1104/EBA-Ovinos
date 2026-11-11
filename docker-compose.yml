@@ -1,0 +1,50 @@
+services:
+  db:
+    image: mariadb:10.11
+    container_name: eba-db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-eba_root_password}
+      MYSQL_DATABASE: eba_db
+      MYSQL_USER: eba_user
+      MYSQL_PASSWORD: ${DB_PASSWORD:-eba_password}
+    ports:
+      - "3307:3306"
+    volumes:
+      - eba_mysql_data:/var/lib/mysql
+      # Auto-inicialización: solo corre en volumen vacío (primera vez)
+      - ./database/init:/docker-entrypoint-initdb.d:ro
+
+  backend:
+    build: ./backend
+    container_name: eba-backend
+    restart: unless-stopped
+    depends_on:
+      - db
+    env_file:
+      - ./backend/.env
+    environment:
+      # Dentro de Docker, MariaDB se llama "db" y el puerto es 3306
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_NAME: eba_db
+      DB_USER: eba_user
+      PORT: "4000"
+    ports:
+      - "4000:4000"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: http://localhost:4000/api
+    container_name: eba-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "5173:5173"
+
+volumes:
+  eba_mysql_data:
+    driver: local
